@@ -280,7 +280,7 @@ export class BoonDrawSVG {
       textElement.setAttribute("y", `${updatedY}`);
       this.removeAllChildren(textElement);
       textElement.appendChild(cloneNode);
-      console.log("last");
+
       return this;
     } catch (error) {
       return this;
