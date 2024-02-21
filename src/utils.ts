@@ -1,20 +1,20 @@
-import { Declaration, FontFace, Stylesheet } from "css";
-import TextToSVG from "text-to-svg";
+import { Declaration, FontFace, Stylesheet } from 'css';
+import TextToSVG from 'text-to-svg';
 
 import {
   DEFAULT_FONT_SIZE,
   PROPERTY_FONT_FAMILY,
   PROPERTY_FONT_SRC,
-  RULE_FONT_FACE,
-} from "./constants";
+  RULE_FONT_FACE
+} from './constants';
 import {
   CanvasSize,
   FONT_FACE_PROPERTIES,
   FontInfo,
-  Position,
-} from "./utils.types";
+  Position
+} from './utils.types';
 
-const cssParse = require("css/lib/parse");
+const cssParse = require('css/lib/parse');
 
 /**
  * 주어진 @font-face 문자열에서 폰트 정보를 추출하는 함수
@@ -67,7 +67,7 @@ export const getFontInfoFromFontFace = (
   fontFamily: string
 ): Record<FONT_FACE_PROPERTIES, string> | undefined => {
   // style 태그에서 @font-face 스타일 가져오기
-  const styleTags = document.getElementsByTagName("style");
+  const styleTags = document.getElementsByTagName('style');
   const styleTag = styleTags.item(0);
   const fontFaceString = styleTag?.textContent;
 
@@ -109,11 +109,11 @@ export const getFontScaleFromFontSize = (fontSize: number) =>
 
 export const getCanvasSize = (document: Document): CanvasSize | undefined => {
   const svgElement = document.documentElement;
-  const viewBox = svgElement.getAttribute("viewBox");
+  const viewBox = svgElement.getAttribute('viewBox');
 
   if (!viewBox) return;
 
-  const [, , canvasWidthString, canvasHeightString] = viewBox.split(" ");
+  const [, , canvasWidthString, canvasHeightString] = viewBox.split(' ');
   const [canvasWidth, canvasHeight] = [+canvasWidthString, +canvasHeightString];
 
   return { canvasWidth, canvasHeight };
@@ -121,8 +121,8 @@ export const getCanvasSize = (document: Document): CanvasSize | undefined => {
 
 export const getTextXPosition = (
   textElement: SVGTextElement
-): Position["x"] | undefined => {
-  const xString = textElement.getAttribute("x");
+): Position['x'] | undefined => {
+  const xString = textElement.getAttribute('x');
 
   if (xString === null) return;
 
@@ -131,8 +131,8 @@ export const getTextXPosition = (
 
 export const getTextYPosition = (
   textElement: SVGTextElement
-): Position["y"] | undefined => {
-  const yString = textElement.getAttribute("y");
+): Position['y'] | undefined => {
+  const yString = textElement.getAttribute('y');
 
   if (yString === null) return;
 
@@ -151,9 +151,9 @@ export const getTextPosition = (
 };
 
 export const getFontStyles = (textElement: SVGTextElement) => {
-  const fontFamily = textElement.getAttribute("font-family");
-  const fontSizeString = textElement.getAttribute("font-size");
-  const letterSpacingString = textElement.getAttribute("letter-spacing");
+  const fontFamily = textElement.getAttribute('font-family');
+  const fontSizeString = textElement.getAttribute('font-size');
+  const letterSpacingString = textElement.getAttribute('letter-spacing');
 
   if (!fontFamily || !fontSizeString || !letterSpacingString) return;
 

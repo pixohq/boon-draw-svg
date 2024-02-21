@@ -1,23 +1,28 @@
 {
-  "extends": ["plugin:import/recommended", "plugin:import/typescript"],
-  "plugins": ["testing-library", "import"],
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "import",
+    "eslint-plugin-simple-import-sort"
+  ],
   "rules": {
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-empty-function": "off",
-    "import/no-unresolved": "error",
     "no-trailing-spaces": "error",
     "no-console": "off",
     "no-irregular-whitespace": ["error"],
     "no-duplicate-imports": ["error", { "includeExports": true }],
-    "react/no-unescaped-entities": "off",
-    "react/self-closing-comp": [
-      "error",
-      {
-        "component": true,
-        "html": true
-      }
-    ],
     "comma-dangle": [
       "error",
       {
@@ -38,28 +43,9 @@
       "error",
       { "vars": "all", "args": "none", "ignoreRestSiblings": false }
     ],
-    "unused-imports/no-unused-imports-ts": ["error"],
-    "comma-spacing": ["error", { "before": false, "after": true }],
-    "import/no-cycle": [
-      2,
-      {
-        "maxDepth": 1
-      }
-    ]
+    "comma-spacing": ["error", { "before": false, "after": true }]
   },
   "settings": {
-    "import/parsers": {
-      "@typescript-eslint/parser": [".ts"]
-    },
-    "import/resolver": {
-      "typescript": {
-        // use a glob pattern
-        "project": "./tsconfig.json"
-      },
-      "node": true
-    }
-  },
-  "env": {
-    "jest": true
+    "import/extensions": [".js", ".ts"]
   }
 }

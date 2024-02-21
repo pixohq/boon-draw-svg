@@ -1,6 +1,6 @@
-import TextToSVG, { Metrics } from "text-to-svg";
+import TextToSVG, { Metrics } from 'text-to-svg';
 
-import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from "./constants";
+import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from './constants';
 
 export interface CanvasSize {
   canvasWidth: number;

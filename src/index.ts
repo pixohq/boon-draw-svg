@@ -1,1 +1,1 @@
-export { BoonDrawSVG } from "./BoonDrawSVG";
+export { BoonDrawSVG } from './BoonDrawSVG';
