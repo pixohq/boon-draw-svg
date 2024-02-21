@@ -53,9 +53,9 @@ const extractFontInfos = (fontFaceString: string) => {
 
 export const extractContentFromURL = (urlString: string) => {
   const urlRegex = /url\((['"])?(.*?)\1\)/;
-  const match1 = urlString.match(urlRegex);
+  const match = urlString.match(urlRegex);
 
-  return match1 ? match1[2] : null;
+  return match ? match[2] : null;
 };
 
 /**
@@ -78,10 +78,7 @@ export const getFontInfoFromFontFace = (
 
   // 폰트 정보에서 src 속성 값만 추출하여 URL 배열 생성
   const fontInfo = fontInfos?.find((fontInfo) =>
-    fontInfo.find(
-      (font) =>
-        font.property === PROPERTY_FONT_FAMILY && font.value === fontFamily
-    )
+    fontInfo.find((font) => font.property === PROPERTY_FONT_FAMILY && font.value === fontFamily)
   );
 
   if (!fontInfo) return;
@@ -97,7 +94,9 @@ export const getFontInfoFromFontFace = (
 export const loadTextToSvg = (fontURL: string): Promise<TextToSVG> => {
   return new Promise<TextToSVG>((resolve, reject) => {
     return TextToSVG.load(fontURL, (error, textToSvg) => {
-      if (error || !textToSvg) return reject(error);
+      if (error || !textToSvg) {
+        return reject(error);
+      }
 
       return resolve(textToSvg);
     });
@@ -155,7 +154,9 @@ export const getFontStyles = (textElement: SVGTextElement) => {
   const fontSizeString = textElement.getAttribute('font-size');
   const letterSpacingString = textElement.getAttribute('letter-spacing');
 
-  if (!fontFamily || !fontSizeString || !letterSpacingString) return;
+  if (!fontFamily) throw new Error(`font-family를 찾을 수 없습니다. ${textElement}`);
+  if (!fontSizeString) throw new Error(`font-size를 찾을 수 없습니다. ${textElement}`);
+  if (!letterSpacingString) throw new Error(`letter-spacing을 찾을 수 없습니다. ${textElement}`);
 
   const fontSize = +fontSizeString;
   const letterSpacing = +letterSpacingString;

@@ -1,3 +1,7 @@
+export interface GetElementByIdOptions {
+  qualifiedName?: string;
+}
+
 export interface GetTextToSVGOptionsProps {
   fontSize: number;
   letterSpacing: number;
@@ -18,6 +22,6 @@ export interface GetUpdatedBrandNameYProps {
 }
 
 export interface UpdateBrandNameProps {
-  brandNameId: string;
+  targetId: string;
   brandName: string;
 }
