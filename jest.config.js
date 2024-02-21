@@ -10,7 +10,10 @@ module.exports = {
       "<rootDir>/fileTransformer.js",
     "\\.(svg)$": "<rootDir>/svgTransformer.js",
   },
-  testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  testRegex: ".*\.test\.ts$",
+  moduleFileExtensions: ["ts", "js"],
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
+  moduleNameMapper: {
+    "\\.(ttf)$": "<rootDir>/__mocks__/font.ttf"
+  }
 };
