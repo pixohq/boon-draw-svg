@@ -11,6 +11,7 @@ import {
   CanvasSize,
   FONT_FACE_PROPERTIES,
   FontInfo,
+  GetFontStyleOptionProps,
   Position
 } from './utils.types';
 
@@ -155,4 +156,19 @@ export const getFontStyles = (textElement: SVGTextElement) => {
   const letterSpacing = +letterSpacingString;
 
   return { fontFamily, fontSize, letterSpacing };
+};
+
+export const getFontStyleOption = ({
+  fontSize,
+  letterSpacing,
+  scale,
+}: GetFontStyleOptionProps): TextToSVG.GenerationOptions => {
+  return {
+    x: 0,
+    y: 0,
+    fontSize: fontSize,
+    anchor: 'center top',
+    kerning: true,
+    letterSpacing: (1 / fontSize) * (letterSpacing * scale),
+  };
 };

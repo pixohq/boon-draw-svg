@@ -27,3 +27,9 @@ export interface GetMetricsProps {
   options: TextToSVG.GenerationOptions;
   metricsCallback: (metrics: Metrics) => void;
 }
+
+export interface GetFontStyleOptionProps {
+  fontSize: number;
+  letterSpacing: number;
+  scale: number;
+}
