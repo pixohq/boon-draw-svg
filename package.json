@@ -1,5 +1,5 @@
 {
-  "name": "BoonDrawSVG",
+  "name": "boon-draw-svg",
   "version": "0.0.7",
   "main": "src/index.ts",
   "repository": "https://github.com/pixohq/BoonDrawSVG.git",
