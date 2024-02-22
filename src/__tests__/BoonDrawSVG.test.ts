@@ -1,30 +1,9 @@
+import '../__mocks__/text-to-svg';
+
 import { BoonDrawSVG } from '../BoonDrawSVG';
-// import SVG from './assets/3e5g1A25gtlJdi2mH8z4hk.svg';
-// import SVG_BRAND_NAME from './assets/3e5g1A25gtlJdi2mH8z4hk-brandNameId.svg';
 import SVG from './assets/6DecQXLpmG9WZJm9f3rVjg.svg';
 import SVG_BRAND_NAME from './assets/6DecQXLpmG9WZJm9f3rVjg-brandName.svg';
-import {
-  SVG_STRING
-} from './constants';
-
-jest.mock('text-to-svg', () => {
-  const load = (fontURL: string, callback: (error: string, textToSvg: any) => void) => {
-    const getMetrics = () => {
-      return {
-        width: 100,
-      };
-    };
-
-    callback('', {
-      getMetrics,
-    });
-  };
-
-
-  return {
-    load,
-  };
-});
+import { SVG_STRING } from './constants';
 
 describe('BoonDrawSVG 모듈', () => {
   test('생성자 테스트', () => {
