@@ -3,12 +3,24 @@ export interface GetElementByIdOptions {
 }
 
 export interface GetAdjustedFontSizeProps {
+  key: string;
   document: Document;
   targetId: string;
   brandName: string;
 }
 
+export interface GetAdjustedFontSizeResult {
+  fontSize: number;
+  letterSpacing: number;
+}
+
+export interface GetUpdatedBrandNameDyProps {
+  key: string;
+  targetId: string;
+}
+
 export interface GetUpdatedBrandNameYProps {
+  key: string;
   document: Document;
   targetId: string;
   brandName: string;
@@ -16,6 +28,7 @@ export interface GetUpdatedBrandNameYProps {
 }
 
 export interface UpdateBrandNameProps {
+  key: string;
   targetId: string;
   brandName: string;
 }

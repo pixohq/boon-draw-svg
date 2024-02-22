@@ -4,7 +4,9 @@ import { DOMParser, XMLSerializer } from 'xmldom';
 
 import {
   GetAdjustedFontSizeProps,
+  GetAdjustedFontSizeResult,
   GetElementByIdOptions,
+  GetUpdatedBrandNameDyProps,
   GetUpdatedBrandNameYProps,
   UpdateBrandNameProps
 } from './BoonDrawSVG.types';
@@ -20,10 +22,10 @@ import {
 } from './utils/utils';
 
 export class BoonDrawSVG {
-  private svgString: string | null = null;
-  private document: Document | null = null;
+  private svgStringMap: Map<string, string> = new Map();
+  private documentMap: Map<string, Document> = new Map();
   private serializer: XMLSerializer = new XMLSerializer();
-  private fontMap: Map<string, TextToSVG> = new Map();
+  private textToSvgMap: Map<string, TextToSVG> = new Map();
 
   /**
    * 주어진 document에서 주어진 targetId와 일치하는 요소를 반환합니다.
@@ -82,12 +84,34 @@ export class BoonDrawSVG {
     return document;
   }
 
+  /**
+   * 주어진 키와 대상 ID를 사용하여 원본 SVG 텍스트 요소를 가져옵니다.
+   *
+   * @param key - SVG를 저장한 맵에서의 키
+   * @param targetId - 가져올 텍스트 요소의 대상 ID
+   * @returns 대상 ID에 해당하는 SVG 텍스트 요소 또는 null (찾지 못한 경우)
+   */
+  private getOriginalTextElement(key: string, targetId: string): SVGTextElement | null {
+    // 새로운 문서를 생성하여 SVG 문자열을 이용하여 가져옵니다.
+    const newDocument = this.getNewDocument(this.getSvgString(key));
+
+    // 새 문서에서 대상 ID에 해당하는 브랜드 이름 텍스트 요소를 가져옵니다.
+    return this.getBrandNameTextElement(newDocument, targetId);
+  }
+
+  /**
+   * getTextToSvg 함수는 주어진 Document와 폰트 패밀리에 대한 TextToSVG 인스턴스를 비동기적으로 가져옵니다.
+   *
+   * @param document - Document 객체
+   * @param fontFamily - 폰트 패밀리
+   * @returns Promise<TextToSVG | undefined> - TextToSVG 인스턴스 또는 undefined (실패 시)
+   */
   private async getTextToSvg(
     document: Document,
     fontFamily: string
   ): Promise<TextToSVG | undefined> {
-    if (this.fontMap.has(fontFamily)) {
-      return this.fontMap.get(fontFamily) as TextToSVG;
+    if (this.textToSvgMap.has(fontFamily)) {
+      return this.textToSvgMap.get(fontFamily) as TextToSVG;
     }
 
     const fontInfo = getFontInfoFromFontFace(document, fontFamily);
@@ -105,6 +129,16 @@ export class BoonDrawSVG {
     return textToSvg;
   }
 
+  /**
+   * getMetrics 함수는 주어진 Document, 텍스트, 폰트 패밀리, 폰트 크기, 글자 간격에 대한 TextToSVG.Metrics를 비동기적으로 가져옵니다.
+   *
+   * @param document - Document 객체
+   * @param text - 텍스트
+   * @param fontFamily - 폰트 패밀리
+   * @param fontSize - 폰트 크기
+   * @param letterSpacing - 글자 간격
+   * @returns Promise<TextToSVG.Metrics | undefined> - Metrics 객체 또는 undefined(실패)
+   */
   private async getMetrics(
     document: Document,
     text: string,
@@ -120,19 +154,23 @@ export class BoonDrawSVG {
     const options = getFontStyleOption({ fontSize, letterSpacing, scale });
     const metrics = textToSvg.getMetrics(text, options);
 
-    this.fontMap.set(fontFamily, textToSvg);
+    this.textToSvgMap.set(fontFamily, textToSvg);
 
     return metrics;
   }
 
-  private getOriginalTextElement(targetId: string): SVGTextElement | null {
-    const newDocument = this.getNewDocument(this.getSvgString());
-
-    return this.getBrandNameTextElement(newDocument, targetId);
-  }
-
-  private getUpdatedBrandNameDy(brandNameId: string): number | undefined {
-    const originalTextElement = this.getOriginalTextElement(brandNameId);
+  /**
+   * getUpdatedBrandNameDy 함수는 주어진 프로퍼티를 사용하여 브랜드 이름의 dy 값을 업데이트합니다.
+   *
+   * @param key - SVG를 저장한 맵에서의 키
+   * @param targetId - 업데이트할 텍스트 요소의 대상 ID
+   * @returns number | undefined - 업데이트된 dy 값 또는 undefined (실패 시)
+   */
+  private getUpdatedBrandNameDy({
+    key,
+    targetId,
+  }: GetUpdatedBrandNameDyProps): number | undefined {
+    const originalTextElement = this.getOriginalTextElement(key, targetId);
     const lastChildDy = (originalTextElement?.lastChild as SVGTSpanElement).getAttribute('dy');
 
     if (originalTextElement === null) return undefined;
@@ -145,7 +183,18 @@ export class BoonDrawSVG {
     return dy;
   }
 
+  /**
+   * getUpdatedBrandNameY 함수는 주어진 프로퍼티를 사용하여 브랜드 이름의 Y 좌표를 업데이트합니다.
+   *
+   * @param key - SVG를 저장한 맵에서의 키
+   * @param document - SVG 문서
+   * @param targetId - 업데이트할 텍스트 요소의 대상 ID
+   * @param brandName - 업데이트할 브랜드 이름
+   * @param fontSize - 브랜드 이름의 폰트 크기
+   * @returns Promise<number | undefined> - 업데이트된 Y 좌표 값 또는 undefine
+   */
   private async getUpdatedBrandNameY({
+    key,
     document,
     targetId,
     brandName,
@@ -155,7 +204,7 @@ export class BoonDrawSVG {
 
     if (canvasSize === undefined) return;
 
-    const originalTextElement = this.getOriginalTextElement(targetId);
+    const originalTextElement = this.getOriginalTextElement(key, targetId);
     const textElement = this.getBrandNameTextElement(document, targetId);
 
     if (!originalTextElement) return;
@@ -199,13 +248,23 @@ export class BoonDrawSVG {
     return newY;
   }
 
+  /**
+   * getAdjustedFontStyles 함수는 주어진 프로퍼티를 사용하여 조정된 폰트 스타일을 비동기적으로 가져옵니다.
+   *
+   * @param key - SVG를 저장한 맵에서의 키
+   * @param document - Document 객체
+   * @param targetId - 대상 요소의 ID
+   * @param brandName - 브랜드 이름
+   * @returns Promise<GetAdjustedFontSizeResult | undefined> - 조정된 폰트 크기 및 글자 간격 객체 또는 undefined (실패 시)
+   */
   private async getAdjustedFontStyles({
+    key,
     document,
     targetId,
     brandName,
-  }: GetAdjustedFontSizeProps): Promise<{ fontSize: number; letterSpacing: number; } | undefined> {
+  }: GetAdjustedFontSizeProps): Promise<GetAdjustedFontSizeResult | undefined> {
     const textElement = this.getBrandNameTextElement(document, targetId);
-    const originalTextElement = this.getOriginalTextElement(targetId);
+    const originalTextElement = this.getOriginalTextElement(key, targetId);
 
     if (!textElement || !originalTextElement) throw new Error(`data-id가 ${targetId}인 element를 찾을 수 없습니다.`);
 
@@ -232,12 +291,21 @@ export class BoonDrawSVG {
     return { fontSize: fontSize, letterSpacing: letterSpacing };
   }
 
+  /**
+   * updateBrandName 함수는 주어진 프로퍼티를 사용하여 브랜드 이름을 업데이트합니다.
+   *
+   * @param key - SVG를 저장한 맵에서의 키
+   * @param targetId - 대상 요소의 ID
+   * @param brandName - 업데이트할 브랜드 이름
+   * @returns Promise<BoonDrawSVG> - 업데이트된 BoonDrawSVG 객체 또는 현재 객체 (실패 시)
+   */
   async updateBrandName({
+    key,
     targetId,
     brandName,
   }: UpdateBrandNameProps): Promise<BoonDrawSVG> {
     try {
-      const document = this.getDocument();
+      const document = this.getDocument(key);
       const textElement = this.getBrandNameTextElement(document, targetId);
       const firstChild = textElement?.firstChild as SVGTSpanElement | null;
 
@@ -246,6 +314,7 @@ export class BoonDrawSVG {
 
       const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
       const adjustedFontStyles = await this.getAdjustedFontStyles({
+        key,
         document,
         targetId,
         brandName,
@@ -255,12 +324,16 @@ export class BoonDrawSVG {
 
       const { fontSize, letterSpacing } = adjustedFontStyles;
       const updatedY = await this.getUpdatedBrandNameY({
+        key,
         document,
         targetId,
         brandName,
         fontSize,
       });
-      const updatedDy = this.getUpdatedBrandNameDy(targetId);
+      const updatedDy = this.getUpdatedBrandNameDy({
+        key,
+        targetId,
+      });
 
       if (updatedY === undefined || updatedDy === undefined) return this;
 
@@ -280,110 +353,108 @@ export class BoonDrawSVG {
 
   /**
    * getDocument 함수는 현재 객체(this)의 문서(document)를 반환합니다.
+   * @param {string} key - SVG를 저장할 맵에서의 키
    * @throws {Error} 만약 문서(document)가 초기화되지 않았을 경우 에러를 던집니다.
    * @returns {Document} 현재 객체(this)의 문서(document)를 반환합니다.
    */
-  getDocument(): Document {
-    if (!this.document) {
+  getDocument(key: string): Document {
+    if (!this.documentMap.has(key)) {
       throw new Error('Document 문서가 초기화되지 않았습니다.');
     }
 
-    return this.document;
+    return this.documentMap.get(key) as Document;
+  }
+
+  /**
+   * getSvgString 함수는 현재 객체(this)의 SVG 문자열을 반환합니다.
+   * @param {string} key - SVG를 저장할 맵에서의 키
+   * @throws {Error} 만약 SVG 문자열이 초기화되지 않았을 경우 에러를 던집니다.
+   * @returns {string} 현재 객체(this)의 SVG 문자열을 반환합니다.
+   */
+  getSvgString(key: string): string {
+    if (!this.svgStringMap.has(key)) {
+      throw new Error('SVG 문서가 초기화되지 않았습니다.');
+    }
+
+    return this.svgStringMap.get(key) as string;
   }
 
   /**
    * getSvgStringFromDocument 함수는 현재 객체(this)의 문서(document)를 문자열 형태의 SVG로 직렬화하여 반환합니다.
+   * @param {string} key - SVG를 저장할 맵에서의 키
    * @returns {string} 문서(document)를 문자열 형태의 SVG로 직렬화한 결과를 반환합니다.
    */
-  getSvgStringFromDocument(): string {
+  getSvgStringFromDocument(key: string): string {
     // 현재 객체(this)의 문서(document)를 문자열 형태의 SVG로 직렬화합니다.
-    const serializedSvg = this.serializer.serializeToString(this.getDocument());
+    const serializedSvg = this.serializer.serializeToString(this.getDocument(key));
 
     // 직렬화된 SVG 문자열을 반환합니다.
     return serializedSvg;
   }
 
   /**
-   * getSvgString 함수는 현재 객체(this)의 SVG 문자열을 반환합니다.
-   * @throws {Error} 만약 SVG 문자열이 초기화되지 않았을 경우 에러를 던집니다.
-   * @returns {string} 현재 객체(this)의 SVG 문자열을 반환합니다.
-   */
-  getSvgString(): string {
-    // 만약 SVG 문자열이 초기화되지 않았다면 에러를 던집니다.
-    if (!this.svgString) {
-      throw new Error('SVG 문서가 초기화되지 않았습니다.');
-    }
-
-    // 현재 객체(this)의 SVG 문자열을 반환합니다.
-    return this.svgString;
-  }
-
-  /**
    * setFullWidth 함수는 SVG 문서 요소의 너비와 높이를 100%로 설정합니다.
+   * @param {string} key - SVG를 저장할 맵에서의 키
    * @returns {BoonDrawSVG} 현재 객체(this)를 반환합니다.
    */
-  setFullWidth(): BoonDrawSVG {
-    // 현재 객체(this)의 문서 요소를 가져옵니다.
-    const documentElement = this.getDocument().documentElement;
+  setFullWidth(key: string): BoonDrawSVG {
+    const documentElement = this.getDocument(key).documentElement;
 
     // 문서 요소의 너비와 높이를 100%로 설정합니다.
     documentElement.setAttribute('width', '100%');
     documentElement.setAttribute('height', '100%');
 
-    // 현재 객체(this)를 반환합니다.
     return this;
   }
 
   /**
    * setUniqueId 함수는 SVG 문자열 내의 모든 요소의 ID를 고유한 값으로 대체합니다.
-   * @returns {BoonDrawSVG} 현재 객체(this)를 반환합니다.
+   * @param {string} key - SVG를 저장할 맵에서의 키
+   * @returns {string} 새로운 SVG 문자열
    */
-  setUniqueId(): BoonDrawSVG {
-    // SVG 문자열 가져오기
-    const svgString = this.getSvgString();
-
-    // 유니크한 키 생성
+  private replaceUniqueId(key: string, svgString: string): string {
     const uniqueKey = v4(); // v4() 함수는 uuid 모듈에서 유니크한 키를 생성합니다.
-
-    // 새로운 SVG 문자열을 기존 SVG 문자열로 초기화합니다.
-    let newSvgString = svgString;
-
-    // 새로운 문서(document) 생성
     const document = this.getNewDocument(svgString);
-
-    // 모든 요소 검색
     const allElements = document.getElementsByTagName('*');
 
     // 모든 요소 중 ID를 가진 요소만 필터링하여 배열로 변환합니다.
     const elementsHaveId = Array.from(allElements).filter((element) => element.getAttribute('id'));
+
+    let newSvgString = svgString;
 
     // 각 요소를 고유한 키와 함께 변경하여 새로운 SVG 문자열 생성
     elementsHaveId.forEach((element, index) => {
       const id = element.getAttribute('id') as string;
 
       // 현재 ID를 고유한 키와 인덱스로 대체하여 새로운 SVG 문자열을 생성합니다.
-      newSvgString = newSvgString.replace(new RegExp(id, 'gi'), `${uniqueKey}-${index}`);
+      newSvgString = newSvgString.replace(new RegExp(id, 'gi'), `${key}_${uniqueKey}_${index}`);
     });
 
-    // SVG 문자열 및 문서 업데이트
-    this.svgString = newSvgString;
-    this.document = this.getNewDocument(newSvgString);
-
-    // 현재 객체(this)를 반환합니다.
-    return this;
+    return newSvgString;
   }
 
   /**
-   * init 함수는 SVG 문자열을 초기화하고 관련 문서(document)를 설정합니다.
-   * @param {string} svgString 초기화할 SVG 문자열
-   * @returns {BoonDrawSVG} 현재 객체(this)를 반환합니다.
+   * init 함수는 주어진 키와 SVG 문자열을 사용하여 BoonDrawSVG 객체를 초기화합니다.
+   *
+   * @param {string} key - SVG를 저장할 맵에서의 키
+   * @param {string} svgString - SVG 형식의 문자열 데이터
+   * @returns 이 메서드를 호출한 현재 BoonDrawSVG 객체
    */
-  init(svgString: string): BoonDrawSVG {
-    // 주어진 SVG 문자열로 현재 객체의 SVG 문자열 및 문서를 초기화합니다.
-    this.svgString = svgString;
-    this.document = this.getNewDocument(svgString);
+  init(key: string, svgString: string): BoonDrawSVG {
+    // SVG 문자열 및 문서 업데이트
+    this.svgStringMap.set(key, svgString);
+    this.documentMap.set(key, this.getNewDocument(svgString));
 
-    // 현재 객체(this)를 반환합니다.
+    return this;
+  }
+
+  initUniqueId(key: string, svgString: string): BoonDrawSVG {
+    const newSvgString = this.replaceUniqueId(key, svgString);
+
+    // SVG 문자열 및 문서 업데이트
+    this.svgStringMap.set(key, newSvgString);
+    this.documentMap.set(key, this.getNewDocument(newSvgString));
+
     return this;
   }
 }
