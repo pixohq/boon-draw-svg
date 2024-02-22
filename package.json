@@ -1,6 +1,6 @@
 {
   "name": "BoonDrawSVG",
-  "version": "0.0.7",
+  "version": "0.0.6",
   "main": "src/index.ts",
   "repository": "https://github.com/pixohq/BoonDrawSVG.git",
   "author": "LeeSeongJin <leeseongjinca@pixo.co>",
