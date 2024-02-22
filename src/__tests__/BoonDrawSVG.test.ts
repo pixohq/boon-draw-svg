@@ -1,6 +1,8 @@
 import { BoonDrawSVG } from '../BoonDrawSVG';
-import SVG from './assets/3e5g1A25gtlJdi2mH8z4hk.svg';
-import SVG_BRAND_NAME from './assets/3e5g1A25gtlJdi2mH8z4hk-brandNameId.svg';
+// import SVG from './assets/3e5g1A25gtlJdi2mH8z4hk.svg';
+// import SVG_BRAND_NAME from './assets/3e5g1A25gtlJdi2mH8z4hk-brandNameId.svg';
+import SVG from './assets/6DecQXLpmG9WZJm9f3rVjg.svg';
+import SVG_BRAND_NAME from './assets/6DecQXLpmG9WZJm9f3rVjg-brandName.svg';
 import {
   SVG_STRING
 } from './constants';
@@ -32,62 +34,67 @@ describe('BoonDrawSVG 모듈', () => {
   });
 
   describe('init() 테스트', () => {
-    const key = '3e5g1A25gtlJdi2mH8z4hk';
+    const key = 'template-key';
+    const targetId = 'target-dataId';
     const boonDrawSvg = new BoonDrawSVG();
 
     test('초기화 테스트', () => {
-      expect(boonDrawSvg.init(key, SVG_STRING).getSvgString(key)).toMatch('svg');
+      expect(boonDrawSvg.init(key, SVG_STRING, targetId).getSvgString(key)).toMatch('svg');
     });
 
     test('아이디가 교체되지 않아야 함', () => {
-      expect(boonDrawSvg.init(key, SVG_STRING).getSvgString(key)).toMatch('id="canvas1-clip"');
+      expect(boonDrawSvg.init(key, SVG_STRING, targetId).getSvgString(key)).toMatch('id="canvas1-clip"');
     });
   });
 
   describe('initWithUniqueId() 테스트', () => {
-    const key = '3e5g1A25gtlJdi2mH8z4hk';
+    const key = 'template-key';
+    const targetId = 'target-dataId';
     const boonDrawSvg = new BoonDrawSVG();
 
     test('초기화 테스트', () => {
-      expect(boonDrawSvg.initUniqueId(key, SVG_STRING).getSvgString(key)).toMatch('svg');
+      expect(boonDrawSvg.initUniqueId(key, SVG_STRING, targetId).getSvgString(key)).toMatch('svg');
     });
 
     test('아이디가 초기화 되어야 함', () => {
-      expect(boonDrawSvg.initUniqueId(key, SVG_STRING).getSvgString(key)).not.toMatch('id="canvas1-clip"');
+      expect(boonDrawSvg.initUniqueId(key, SVG_STRING, targetId).getSvgString(key)).not.toMatch('id="canvas1-clip"');
     });
   });
 
   describe('<text> 테스트', () => {
     test('"A happy accident happened" 텍스트가 존재해야 함', () => {
-      const key = '3e5g1A25gtlJdi2mH8z4hk';
+      const key = 'template-key';
+      const targetId = 'target-dataId';
       const boonDrawSvg = new BoonDrawSVG();
-      const svgString = boonDrawSvg.initUniqueId(key, SVG_STRING).getSvgString(key);
+      const svgString = boonDrawSvg.initUniqueId(key, SVG_STRING, targetId).getSvgString(key);
 
       expect(svgString).toMatch('A happy accident happened');
     });
 
     test('brandNameId가 존재하지 않는 경우 에러가 발생해야 함', async () => {
-      const key = '3e5g1A25gtlJdi2mH8z4hk';
+      const key = 'template-key';
+      const targetId = 'target-dataId';
       const boonDrawSvg = new BoonDrawSVG();
 
       try {
         await boonDrawSvg
-          .initUniqueId(key, SVG)
-          .updateBrandName({ key, targetId: 'brandName', brandName: 'A New Text' });
+          .initUniqueId(key, SVG, targetId)
+          .updateBrandName({ key, targetId, brandName: 'A New Text' });
       } catch (error) {
         expect(error).toEqual(new Error('텍스트 엘리먼트를 찾을 수 없습니다.'));
       }
     });
 
     test('brandNameId가 존재하는 경우 텍스트가 변경되어야 함', async () => {
-      const key = '3e5g1A25gtlJdi2mH8z4hk';
+      const key = 'template-key';
+      const targetId = 'target-dataId';
       const boonDrawSvg = new BoonDrawSVG();
 
       try {
         const svgString = (
           await boonDrawSvg
-            .initUniqueId(key, SVG_BRAND_NAME)
-            .updateBrandName({ key, targetId: 'brandName', brandName: 'A New Text' })
+            .initUniqueId(key, SVG_BRAND_NAME, targetId)
+            .updateBrandName({ key, targetId, brandName: 'A New Text' })
         ).getSvgString(key);
 
         expect(svgString).toMatch('A New Text');
