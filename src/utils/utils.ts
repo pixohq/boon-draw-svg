@@ -6,7 +6,7 @@ import {
   PROPERTY_FONT_FAMILY,
   PROPERTY_FONT_SRC,
   RULE_FONT_FACE
-} from './constants';
+} from '../constants/constants';
 import {
   CanvasSize,
   FONT_FACE_PROPERTIES,
@@ -103,8 +103,7 @@ export const loadTextToSvg = (fontURL: string): Promise<TextToSVG> => {
   });
 };
 
-export const getFontScaleFromFontSize = (fontSize: number) =>
-  fontSize / DEFAULT_FONT_SIZE;
+export const getFontScaleFromFontSize = (fontSize: number) => fontSize / DEFAULT_FONT_SIZE;
 
 export const getCanvasSize = (document: Document): CanvasSize | undefined => {
   const svgElement = document.documentElement;
@@ -118,9 +117,7 @@ export const getCanvasSize = (document: Document): CanvasSize | undefined => {
   return { canvasWidth, canvasHeight };
 };
 
-export const getTextXPosition = (
-  textElement: SVGTextElement
-): Position['x'] | undefined => {
+export const getTextXPosition = (textElement: SVGTextElement): Position['x'] | undefined => {
   const xString = textElement.getAttribute('x');
 
   if (xString === null) return;
@@ -128,9 +125,7 @@ export const getTextXPosition = (
   return +xString;
 };
 
-export const getTextYPosition = (
-  textElement: SVGTextElement
-): Position['y'] | undefined => {
+export const getTextYPosition = (textElement: SVGTextElement): Position['y'] | undefined => {
   const yString = textElement.getAttribute('y');
 
   if (yString === null) return;
@@ -138,9 +133,7 @@ export const getTextYPosition = (
   return +yString;
 };
 
-export const getTextPosition = (
-  textElement: SVGTextElement
-): Position | undefined => {
+export const getTextPosition = (textElement: SVGTextElement): Position | undefined => {
   const x = getTextXPosition(textElement);
   const y = getTextYPosition(textElement);
 

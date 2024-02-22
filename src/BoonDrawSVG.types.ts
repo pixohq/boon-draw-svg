@@ -2,7 +2,7 @@ export interface GetElementByIdOptions {
   qualifiedName?: string;
 }
 
-export interface GetTextToSVGOptionsProps {
+export interface GetFontStyleProps {
   fontSize: number;
   letterSpacing: number;
   scale: number;
