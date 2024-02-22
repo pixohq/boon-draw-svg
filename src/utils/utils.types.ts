@@ -1,6 +1,10 @@
 import TextToSVG, { Metrics } from 'text-to-svg';
 
-import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from './constants';
+import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from '../constants/constants';
+
+export type FONT_FACE_PROPERTIES =
+  | typeof PROPERTY_FONT_FAMILY
+  | typeof PROPERTY_FONT_SRC;
 
 export interface CanvasSize {
   canvasWidth: number;
@@ -12,20 +16,14 @@ export interface Position {
   y: number;
 }
 
-export type FONT_FACE_PROPERTIES =
-  | typeof PROPERTY_FONT_FAMILY
-  | typeof PROPERTY_FONT_SRC;
-
 export interface FontInfo {
   property: string;
   value: string;
 }
 
-export type MetricsCallback = (metrics: Metrics) => void;
-
 export interface GetMetricsProps {
   fontURL: string;
   text: string;
   options: TextToSVG.GenerationOptions;
-  metricsCallback: MetricsCallback;
+  metricsCallback: (metrics: Metrics) => void;
 }

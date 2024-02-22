@@ -4,7 +4,8 @@ import { DOMParser, XMLSerializer } from 'xmldom';
 
 import {
   GetAdjustedFontSizeProps,
-  GetTextToSVGOptionsProps,
+  GetElementByIdOptions,
+  GetFontStyleProps,
   GetUpdatedBrandNameYProps,
   UpdateBrandNameProps
 } from './BoonDrawSVG.types';
@@ -16,18 +17,13 @@ import {
   getFontStyles,
   getTextYPosition,
   loadTextToSvg
-} from './utils';
+} from './utils/utils';
 
 export class BoonDrawSVG {
-  private svgString: string;
-  private document: Document;
+  private svgString: string | null = null;
+  private document: Document | null = null;
   private serializer: XMLSerializer = new XMLSerializer();
   private fontMap: Map<string, TextToSVG> = new Map();
-
-  constructor(svgString: string) {
-    this.svgString = svgString;
-    this.document = this.getNewDocument(svgString);
-  }
 
   private getNewDocument(svgString: string): Document {
     const parser = new DOMParser();
@@ -39,11 +35,11 @@ export class BoonDrawSVG {
   private getElementById(
     document: Document,
     targetId: string,
-    options: { tagName?: string }
+    options: GetElementByIdOptions
   ) {
     // 모든 요소를 가져온 다음 id가 targetId 인 요소를 직접 비교합니다.
-    const element = Array.from(document.getElementsByTagName(options.tagName ?? '*')).find((element) => element.getAttribute('id') === targetId);
-    
+    const element = Array.from(document.getElementsByTagName(options.qualifiedName ?? '*')).find((element) => element.getAttribute('id') === targetId);
+
     if (element) {
       return element;
     }
@@ -66,11 +62,11 @@ export class BoonDrawSVG {
     }
   }
 
-  private getOptions({
+  private getFontStyleOptions({
     fontSize,
     letterSpacing,
     scale,
-  }: GetTextToSVGOptionsProps): TextToSVG.GenerationOptions {
+  }: GetFontStyleProps): TextToSVG.GenerationOptions {
     return {
       x: 0,
       y: 0,
@@ -112,7 +108,7 @@ export class BoonDrawSVG {
     if (!textToSvg) return;
 
     const scale = getFontScaleFromFontSize(fontSize);
-    const options = this.getOptions({ fontSize, letterSpacing, scale });
+    const options = this.getFontStyleOptions({ fontSize, letterSpacing, scale });
     const metrics = textToSvg.getMetrics(text, options);
 
     this.fontMap.set(fontFamily, textToSvg);
@@ -121,7 +117,7 @@ export class BoonDrawSVG {
   }
 
   private getOriginalTextElement(targetId: string): SVGTextElement | null {
-    const newDocument = this.getNewDocument(this.svgString);
+    const newDocument = this.getNewDocument(this.getSvgString());
 
     return this.getBrandNameTextElement(newDocument, targetId);
   }
@@ -214,7 +210,7 @@ export class BoonDrawSVG {
 
     if (textToSvg === undefined) return;
 
-    const options = this.getOptions({ fontSize, letterSpacing, scale });
+    const options = this.getFontStyleOptions({ fontSize, letterSpacing, scale });
     const biggestWidth = Math.max(
       ...Array.from(originalTextElement.childNodes).map(
         (childNode) =>
@@ -278,21 +274,29 @@ export class BoonDrawSVG {
   }
 
   getDocument(): Document {
-    if (this.document) {
-      return this.document;
+    if (!this.document) {
+      throw new Error('Document 문서가 초기화되지 않았습니다.');
     }
 
-    return this.getNewDocument(this.svgString);
+    return this.document;
   }
 
-  getSvgString(): string {
+  getSvgStringFromDocument(): string {
     const serializedSvg = this.serializer.serializeToString(this.getDocument());
 
     return serializedSvg;
   }
 
+  getSvgString(): string {
+    if (!this.svgString) {
+      throw new Error('SVG 문서가 초기화되지 않았습니다.');
+    }
+
+    return this.svgString;
+  }
+
   setFullWidth() {
-    const documentElement = this.document.documentElement;
+    const documentElement = this.getDocument().documentElement;
 
     documentElement.setAttribute('width', '100%');
     documentElement.setAttribute('height', '100%');
@@ -302,7 +306,7 @@ export class BoonDrawSVG {
 
   setUniqueId() {
     // SVG 문자열 가져오기
-    const svgString = this.svgString;
+    const svgString = this.getSvgString();
 
     // 유니크한 키 생성
     const uniqueKey = v4();
@@ -325,7 +329,13 @@ export class BoonDrawSVG {
     // SVG 문자열 및 문서 업데이트
     this.svgString = newSvgString;
     this.document = this.getNewDocument(newSvgString);
-    this.setFullWidth();
+
+    return this;
+  }
+
+  init(svgString: string) {
+    this.svgString = svgString;
+    this.document = this.getNewDocument(svgString);
 
     return this;
   }
