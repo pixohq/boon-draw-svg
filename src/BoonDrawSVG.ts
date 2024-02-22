@@ -21,10 +21,16 @@ import {
   loadTextToSvg
 } from './utils/utils';
 
+/**
+ * BoonDrawSVG 클래스는 SVG 문자열을 생성, 관리 및 조작하는 데 사용됩니다.
+ * 이 클래스는 주어진 키에 대한 SVG 문자열을 저장하고 해당 문자열을 이용하여
+ * 문서를 만들어내거나 업데이트합니다. 또한 텍스트 요소의 폰트 스타일을 조절하고,
+ * 특정 요소의 위치를 계산하여 업데이트하는 등의 기능을 제공합니다.
+ */
 export class BoonDrawSVG {
-  private svgStringMap: Map<string, string> = new Map();
-  private documentMap: Map<string, Document> = new Map();
   private serializer: XMLSerializer = new XMLSerializer();
+  private originalTextElementMap: Map<string, SVGTextElement | null> = new Map();
+  private documentMap: Map<string, Document> = new Map();
   private textToSvgMap: Map<string, TextToSVG> = new Map();
 
   /**
@@ -77,7 +83,7 @@ export class BoonDrawSVG {
    * @param svgString string - 파싱할 SVG 문자열
    * @returns Document - 생성된 Document 객체
    */
-  private getNewDocument(svgString: string): Document {
+  private createDocument(svgString: string): Document {
     const parser = new DOMParser();
     const document = parser.parseFromString(svgString, 'image/svg+xml');
 
@@ -88,15 +94,27 @@ export class BoonDrawSVG {
    * 주어진 키와 대상 ID를 사용하여 원본 SVG 텍스트 요소를 가져옵니다.
    *
    * @param key - SVG를 저장한 맵에서의 키
-   * @param targetId - 가져올 텍스트 요소의 대상 ID
    * @returns 대상 ID에 해당하는 SVG 텍스트 요소 또는 null (찾지 못한 경우)
    */
-  private getOriginalTextElement(key: string, targetId: string): SVGTextElement | null {
-    // 새로운 문서를 생성하여 SVG 문자열을 이용하여 가져옵니다.
-    const newDocument = this.getNewDocument(this.getSvgString(key));
+  private getOriginalTextElementInfo(key: string) {
+    if (this.originalTextElementMap.has(key)) {
+      const originalTextElement = this.originalTextElementMap.get(key) as SVGTextElement;
+      const lastChildDy = (originalTextElement.lastChild as SVGTSpanElement).getAttribute('dy');
+      const childNodesLength = originalTextElement.childNodes.length;
+      const textYPosition = getTextYPosition(originalTextElement);
+      const fontStyles = getFontStyles(originalTextElement);
+      const childNodesTextContent = Array.from(originalTextElement.childNodes).map(node => node.textContent);
 
-    // 새 문서에서 대상 ID에 해당하는 브랜드 이름 텍스트 요소를 가져옵니다.
-    return this.getBrandNameTextElement(newDocument, targetId);
+      return {
+        lastChildDy,
+        childNodesLength,
+        textYPosition,
+        fontStyles,
+        childNodesTextContent,
+      };
+    }
+
+    return null;
   }
 
   /**
@@ -168,17 +186,16 @@ export class BoonDrawSVG {
    */
   private getUpdatedBrandNameDy({
     key,
-    targetId,
   }: GetUpdatedBrandNameDyProps): number | undefined {
-    const originalTextElement = this.getOriginalTextElement(key, targetId);
-    const lastChildDy = (originalTextElement?.lastChild as SVGTSpanElement).getAttribute('dy');
+    const originalTextElementInfo = this.getOriginalTextElementInfo(key);
 
-    if (originalTextElement === null) return undefined;
-    if (lastChildDy === null) return undefined;
+    if (!originalTextElementInfo) return undefined;
 
-    const childrenCount = originalTextElement.childNodes.length;
+    const { lastChildDy, childNodesLength } = originalTextElementInfo;
 
-    const dy = (+lastChildDy * (childrenCount - 1)) / childrenCount;
+    if (!lastChildDy || !childNodesLength) return undefined;
+
+    const dy = (+lastChildDy * (childNodesLength - 1)) / childNodesLength;
 
     return dy;
   }
@@ -204,14 +221,13 @@ export class BoonDrawSVG {
 
     if (canvasSize === undefined) return;
 
-    const originalTextElement = this.getOriginalTextElement(key, targetId);
+    const originalTextElementInfo = this.getOriginalTextElementInfo(key);
     const textElement = this.getBrandNameTextElement(document, targetId);
 
-    if (!originalTextElement) return;
+    if (!originalTextElementInfo) return;
     if (!textElement) return;
 
-    const originalTextYPosition = getTextYPosition(originalTextElement);
-    const originalFontStyles = getFontStyles(originalTextElement);
+    const { textYPosition: originalTextYPosition, fontStyles: originalFontStyles } = originalTextElementInfo;
     const fontStyles = getFontStyles(textElement);
 
     if (!originalTextYPosition) return;
@@ -264,9 +280,9 @@ export class BoonDrawSVG {
     brandName,
   }: GetAdjustedFontSizeProps): Promise<GetAdjustedFontSizeResult | undefined> {
     const textElement = this.getBrandNameTextElement(document, targetId);
-    const originalTextElement = this.getOriginalTextElement(key, targetId);
+    const originalTextElementInfo = this.getOriginalTextElementInfo(key);
 
-    if (!textElement || !originalTextElement) throw new Error(`data-id가 ${targetId}인 element를 찾을 수 없습니다.`);
+    if (!textElement || !originalTextElementInfo) throw new Error(`data-id가 ${targetId}인 element를 찾을 수 없습니다.`);
 
     const fontStyles = getFontStyles(textElement);
     const { fontFamily, fontSize, letterSpacing } = fontStyles;
@@ -277,9 +293,9 @@ export class BoonDrawSVG {
 
     const options = getFontStyleOption({ fontSize, letterSpacing, scale });
     const biggestWidth = Math.max(
-      ...Array
-        .from(originalTextElement.childNodes)
-        .map((childNode) => textToSvg.getMetrics(childNode.textContent ?? brandName, options).width)
+      ...originalTextElementInfo
+        .childNodesTextContent
+        .map((textContent) => textToSvg.getMetrics(textContent ?? brandName, options).width)
     );
     const { width: currentWidth } = textToSvg.getMetrics(brandName, options);
 
@@ -332,7 +348,6 @@ export class BoonDrawSVG {
       });
       const updatedDy = this.getUpdatedBrandNameDy({
         key,
-        targetId,
       });
 
       if (updatedY === undefined || updatedDy === undefined) return this;
@@ -359,32 +374,18 @@ export class BoonDrawSVG {
    */
   getDocument(key: string): Document {
     if (!this.documentMap.has(key)) {
-      throw new Error('Document 문서가 초기화되지 않았습니다.');
+      throw new Error('Document 문서를 찾을 수 없습니다.');
     }
 
     return this.documentMap.get(key) as Document;
   }
 
   /**
-   * getSvgString 함수는 현재 객체(this)의 SVG 문자열을 반환합니다.
-   * @param {string} key - SVG를 저장할 맵에서의 키
-   * @throws {Error} 만약 SVG 문자열이 초기화되지 않았을 경우 에러를 던집니다.
-   * @returns {string} 현재 객체(this)의 SVG 문자열을 반환합니다.
-   */
-  getSvgString(key: string): string {
-    if (!this.svgStringMap.has(key)) {
-      throw new Error('SVG 문서가 초기화되지 않았습니다.');
-    }
-
-    return this.svgStringMap.get(key) as string;
-  }
-
-  /**
-   * getSvgStringFromDocument 함수는 현재 객체(this)의 문서(document)를 문자열 형태의 SVG로 직렬화하여 반환합니다.
+   * getSvgString 함수는 현재 객체(this)의 문서(document)를 문자열 형태의 SVG로 직렬화하여 반환합니다.
    * @param {string} key - SVG를 저장할 맵에서의 키
    * @returns {string} 문서(document)를 문자열 형태의 SVG로 직렬화한 결과를 반환합니다.
    */
-  getSvgStringFromDocument(key: string): string {
+  getSvgString(key: string): string {
     // 현재 객체(this)의 문서(document)를 문자열 형태의 SVG로 직렬화합니다.
     const serializedSvg = this.serializer.serializeToString(this.getDocument(key));
 
@@ -414,7 +415,7 @@ export class BoonDrawSVG {
    */
   private replaceUniqueId(key: string, svgString: string): string {
     const uniqueKey = v4(); // v4() 함수는 uuid 모듈에서 유니크한 키를 생성합니다.
-    const document = this.getNewDocument(svgString);
+    const document = this.createDocument(svgString);
     const allElements = document.getElementsByTagName('*');
 
     // 모든 요소 중 ID를 가진 요소만 필터링하여 배열로 변환합니다.
@@ -434,26 +435,38 @@ export class BoonDrawSVG {
   }
 
   /**
-   * init 함수는 주어진 키와 SVG 문자열을 사용하여 BoonDrawSVG 객체를 초기화합니다.
+   * init 메서드는 주어진 키와 SVG 문자열, 대상 요소의 ID를 사용하여 BoonDrawSVG 객체를 초기화합니다.
    *
    * @param {string} key - SVG를 저장할 맵에서의 키
    * @param {string} svgString - SVG 형식의 문자열 데이터
-   * @returns 이 메서드를 호출한 현재 BoonDrawSVG 객체
+   * @param {string} targetId - 초기화할 텍스트 요소의 대상 ID
+   * @returns {BoonDrawSVG} - 이 메서드를 호출한 현재 BoonDrawSVG 객체
    */
-  init(key: string, svgString: string): BoonDrawSVG {
-    // SVG 문자열 및 문서 업데이트
-    this.svgStringMap.set(key, svgString);
-    this.documentMap.set(key, this.getNewDocument(svgString));
+  init(key: string, svgString: string, targetId: string): BoonDrawSVG {
+    const newDocument = this.createDocument(svgString);
+    const originalTextElement = this.getBrandNameTextElement(newDocument, targetId);
+
+    this.documentMap.set(key, newDocument);
+    this.originalTextElementMap.set(key, originalTextElement);
 
     return this;
   }
 
-  initUniqueId(key: string, svgString: string): BoonDrawSVG {
+  /**
+   * initUniqueId 메서드는 주어진 키와 SVG 문자열, 대상 요소의 ID를 사용하여 BoonDrawSVG 객체를 고유하게 초기화합니다.
+   *
+   * @param {string} key - SVG를 저장할 맵에서의 키
+   * @param {string} svgString - SVG 형식의 문자열 데이터
+   * @param {string} targetId - 초기화할 텍스트 요소의 대상 ID
+   * @returns {BoonDrawSVG} - 이 메서드를 호출한 현재 BoonDrawSVG 객체
+   */
+  initUniqueId(key: string, svgString: string, targetId: string): BoonDrawSVG {
     const newSvgString = this.replaceUniqueId(key, svgString);
+    const newDocument = this.createDocument(newSvgString);
+    const originalTextElement = this.getBrandNameTextElement(this.createDocument(newSvgString), targetId);
 
-    // SVG 문자열 및 문서 업데이트
-    this.svgStringMap.set(key, newSvgString);
-    this.documentMap.set(key, this.getNewDocument(newSvgString));
+    this.documentMap.set(key, newDocument);
+    this.originalTextElementMap.set(key, originalTextElement);
 
     return this;
   }

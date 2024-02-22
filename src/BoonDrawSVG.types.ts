@@ -16,7 +16,6 @@ export interface GetAdjustedFontSizeResult {
 
 export interface GetUpdatedBrandNameDyProps {
   key: string;
-  targetId: string;
 }
 
 export interface GetUpdatedBrandNameYProps {
