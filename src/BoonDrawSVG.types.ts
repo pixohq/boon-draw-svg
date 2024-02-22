@@ -18,6 +18,6 @@ export interface GetUpdatedBrandNameYProps {
 }
 
 export interface UpdateBrandNameProps {
-  brandNameId: string;
+  targetId: string;
   brandName: string;
 }

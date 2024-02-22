@@ -1,4 +1,5 @@
 import TextToSVG from 'text-to-svg';
+import { v4 } from 'uuid';
 import { DOMParser, XMLSerializer } from 'xmldom';
 
 import {
@@ -26,7 +27,7 @@ export class BoonDrawSVG {
 
   constructor(svgString: string, options?: BoonDrawSVGOptions) {
     this.svgString = svgString;
-    this.document = this.getDocument();
+    this.document = this.getNewDocument(svgString);
 
     if (options?.fullWidth) {
       this.setFullWidth();
@@ -48,29 +49,27 @@ export class BoonDrawSVG {
   }
 
   private getElementById(
-    doc: Document,
+    document: Document,
     targetId: string,
     options: { tagName?: string }
   ) {
-    // 모든 요소를 가져온 다음 id가 {template.brandNameId} 인 요소를 직접 비교합니다.
-    const allElements = doc.getElementsByTagName(options.tagName ?? '*');
-    for (let i = 0; i < allElements.length; i++) {
-      if (allElements[i].getAttribute('id') === targetId) {
-        return allElements[i];
-      }
+    // 모든 요소를 가져온 다음 id가 targetId 인 요소를 직접 비교합니다.
+    const element = Array.from(document.getElementsByTagName(options.tagName ?? '*')).find((element) => element.getAttribute('id') === targetId);
+    
+    if (element) {
+      return element;
     }
+
     return null;
   }
 
-  private getTextElement(
+  private getBrandNameTextElement(
     document: Document,
     targetId: string
   ): SVGTextElement | null {
-    const textElement = this.getElementById(document, targetId, {
-      tagName: 'text',
-    }) as SVGTextElement;
+    const textElement = Array.from(document.getElementsByTagName('text')).find((element) => element.getAttribute('data-id') === targetId);
 
-    return textElement;
+    return textElement ?? null;
   }
 
   private removeAllChildren(element: Node): void {
@@ -136,14 +135,12 @@ export class BoonDrawSVG {
   private getOriginalTextElement(targetId: string): SVGTextElement | null {
     const newDocument = this.getNewDocument(this.svgString);
 
-    return this.getTextElement(newDocument, targetId);
+    return this.getBrandNameTextElement(newDocument, targetId);
   }
 
   private getUpdatedBrandNameDy(brandNameId: string): number | undefined {
     const originalTextElement = this.getOriginalTextElement(brandNameId);
-    const lastChildDy = (
-      originalTextElement?.lastChild as SVGTSpanElement
-    ).getAttribute('dy');
+    const lastChildDy = (originalTextElement?.lastChild as SVGTSpanElement).getAttribute('dy');
 
     if (originalTextElement === null) return undefined;
     if (lastChildDy === null) return undefined;
@@ -166,7 +163,7 @@ export class BoonDrawSVG {
     if (canvasSize === undefined) return;
 
     const originalTextElement = this.getOriginalTextElement(targetId);
-    const textElement = this.getTextElement(document, targetId);
+    const textElement = this.getBrandNameTextElement(document, targetId);
 
     if (originalTextElement === null) return;
     if (textElement === null) return;
@@ -214,7 +211,7 @@ export class BoonDrawSVG {
     targetId,
     brandName,
   }: GetAdjustedFontSizeProps): Promise<{ fontSize: number; letterSpacing: number; } | undefined> {
-    const textElement = this.getTextElement(document, targetId);
+    const textElement = this.getBrandNameTextElement(document, targetId);
     const originalTextElement = this.getOriginalTextElement(targetId);
 
     if (textElement === null || originalTextElement === null) return;
@@ -248,34 +245,33 @@ export class BoonDrawSVG {
   }
 
   async updateBrandName({
-    brandNameId,
+    targetId,
     brandName,
   }: UpdateBrandNameProps): Promise<BoonDrawSVG> {
     try {
       const document = this.getDocument();
-      const textElement = this.getTextElement(document, brandNameId);
+      const textElement = this.getBrandNameTextElement(document, targetId);
       const firstChild = textElement?.firstChild as SVGTSpanElement | null;
 
       if (!textElement || !firstChild) return this;
 
       const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
       const adjustedFontStyles = await this.getAdjustedFontStyles({
-        document: document,
-        targetId: brandNameId,
+        document,
+        targetId,
         brandName,
       });
-
 
       if (adjustedFontStyles === undefined) return this;
 
       const { fontSize, letterSpacing } = adjustedFontStyles;
       const updatedY = await this.getUpdatedBrandNameY({
-        document: document,
-        targetId: brandNameId,
+        document,
+        targetId,
         brandName,
         fontSize,
       });
-      const updatedDy = this.getUpdatedBrandNameDy(brandNameId);
+      const updatedDy = this.getUpdatedBrandNameDy(targetId);
 
       if (updatedY === undefined || updatedDy === undefined) return this;
 
@@ -305,5 +301,35 @@ export class BoonDrawSVG {
     const serializedSvg = this.serializer.serializeToString(this.getDocument());
 
     return serializedSvg;
+  }
+
+  setUniqueId() {
+    // SVG 문자열 가져오기
+    const svgString = this.svgString;
+
+    // 유니크한 키 생성
+    const uniqueKey = v4();
+    let newSvgString = svgString;
+
+    // document 생성
+    const document = this.getNewDocument(svgString);
+
+    // 모든 요소 검색
+    const allElements = document.getElementsByTagName('*');
+
+    // 모든 요소를 가져와서 id를 가진 요소만 필터링
+    const ids = Array.from(allElements).filter((element) => element.getAttribute('id')).map((element) => element.getAttribute('id')) as string[];
+    console.log(ids);
+    // 아이디를 고유 키와 함께 변경하여 새로운 SVG 문자열 생성
+    ids.forEach((id, index) => {
+      newSvgString = newSvgString.replace(new RegExp(id, 'gi'), `${uniqueKey}-${index}`);
+    });
+
+    // SVG 문자열 및 문서 업데이트
+    this.svgString = newSvgString;
+    this.document = this.getNewDocument(newSvgString);
+    this.setFullWidth();
+
+    return this;
   }
 }
