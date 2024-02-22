@@ -1,12 +1,12 @@
-import TextToSVG from "text-to-svg";
-import { DOMParser, XMLSerializer } from "xmldom";
+import TextToSVG from 'text-to-svg';
+import { DOMParser, XMLSerializer } from 'xmldom';
 
 import {
   GetAdjustedFontSizeProps,
   GetTextToSVGOptionsProps,
   GetUpdatedBrandNameYProps,
-  UpdateBrandNameProps,
-} from "./BoonDrawSVG.types";
+  UpdateBrandNameProps
+} from './BoonDrawSVG.types';
 import {
   extractContentFromURL,
   getCanvasSize,
@@ -14,9 +14,9 @@ import {
   getFontScaleFromFontSize,
   getFontStyles,
   getTextYPosition,
-  loadTextToSvg,
-} from "./utils";
-import { BoonDrawSVGOptions } from "./utils.types";
+  loadTextToSvg
+} from './utils';
+import { BoonDrawSVGOptions } from './utils.types';
 
 export class BoonDrawSVG {
   private svgString: string;
@@ -36,13 +36,13 @@ export class BoonDrawSVG {
   private setFullWidth() {
     const documentElement = this.document.documentElement;
 
-    documentElement.setAttribute("width", "100%");
-    documentElement.setAttribute("height", "100%");
+    documentElement.setAttribute('width', '100%');
+    documentElement.setAttribute('height', '100%');
   }
 
   private getNewDocument(svgString: string): Document {
     const parser = new DOMParser();
-    const document = parser.parseFromString(svgString, "image/svg+xml");
+    const document = parser.parseFromString(svgString, 'image/svg+xml');
 
     return document;
   }
@@ -53,9 +53,9 @@ export class BoonDrawSVG {
     options: { tagName?: string }
   ) {
     // 모든 요소를 가져온 다음 id가 {template.brandNameId} 인 요소를 직접 비교합니다.
-    const allElements = doc.getElementsByTagName(options.tagName ?? "*");
+    const allElements = doc.getElementsByTagName(options.tagName ?? '*');
     for (let i = 0; i < allElements.length; i++) {
-      if (allElements[i].getAttribute("id") === targetId) {
+      if (allElements[i].getAttribute('id') === targetId) {
         return allElements[i];
       }
     }
@@ -67,7 +67,7 @@ export class BoonDrawSVG {
     targetId: string
   ): SVGTextElement | null {
     const textElement = this.getElementById(document, targetId, {
-      tagName: "text",
+      tagName: 'text',
     }) as SVGTextElement;
 
     return textElement;
@@ -88,7 +88,7 @@ export class BoonDrawSVG {
       x: 0,
       y: 0,
       fontSize: fontSize,
-      anchor: "center top",
+      anchor: 'center top',
       kerning: true,
       letterSpacing: (1 / fontSize) * (letterSpacing * scale),
     };
@@ -143,7 +143,7 @@ export class BoonDrawSVG {
     const originalTextElement = this.getOriginalTextElement(brandNameId);
     const lastChildDy = (
       originalTextElement?.lastChild as SVGTSpanElement
-    ).getAttribute("dy");
+    ).getAttribute('dy');
 
     if (originalTextElement === null) return undefined;
     if (lastChildDy === null) return undefined;
@@ -209,11 +209,11 @@ export class BoonDrawSVG {
     return newY;
   }
 
-  private async getAdjustedFontSize({
+  private async getAdjustedFontStyles({
     document,
     targetId,
     brandName,
-  }: GetAdjustedFontSizeProps): Promise<number | undefined> {
+  }: GetAdjustedFontSizeProps): Promise<{ fontSize: number; letterSpacing: number; } | undefined> {
     const textElement = this.getTextElement(document, targetId);
     const originalTextElement = this.getOriginalTextElement(targetId);
 
@@ -239,45 +239,51 @@ export class BoonDrawSVG {
     );
     const { width: currentWidth } = textToSvg.getMetrics(brandName, options);
 
-    if (biggestWidth < currentWidth)
-      return fontSize * (biggestWidth / currentWidth);
-    return fontSize;
+    if (biggestWidth < currentWidth) {
+      const changedScale = (biggestWidth / currentWidth);
+
+      return { fontSize: fontSize * changedScale, letterSpacing: letterSpacing * changedScale };
+    }
+    return { fontSize: fontSize, letterSpacing: letterSpacing };
   }
 
   async updateBrandName({
-    brandNameId: targetId,
+    brandNameId,
     brandName,
   }: UpdateBrandNameProps): Promise<BoonDrawSVG> {
     try {
       const document = this.getDocument();
-      const textElement = this.getTextElement(document, targetId);
+      const textElement = this.getTextElement(document, brandNameId);
       const firstChild = textElement?.firstChild as SVGTSpanElement | null;
 
       if (!textElement || !firstChild) return this;
 
       const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
-      const fontSize = await this.getAdjustedFontSize({
+      const adjustedFontStyles = await this.getAdjustedFontStyles({
         document: document,
-        targetId,
+        targetId: brandNameId,
         brandName,
       });
 
-      if (fontSize === undefined) return this;
 
+      if (adjustedFontStyles === undefined) return this;
+
+      const { fontSize, letterSpacing } = adjustedFontStyles;
       const updatedY = await this.getUpdatedBrandNameY({
         document: document,
-        targetId,
+        targetId: brandNameId,
         brandName,
         fontSize,
       });
-      const updatedDy = this.getUpdatedBrandNameDy(targetId);
+      const updatedDy = this.getUpdatedBrandNameDy(brandNameId);
 
       if (updatedY === undefined || updatedDy === undefined) return this;
 
       cloneNode.textContent = brandName;
-      cloneNode.setAttribute("dy", `${updatedDy}`);
-      cloneNode.setAttribute("font-size", `${fontSize}`);
-      textElement.setAttribute("y", `${updatedY}`);
+      cloneNode.setAttribute('dy', `${updatedDy}`);
+      cloneNode.setAttribute('font-size', `${fontSize}`);
+      cloneNode.setAttribute('letter-spacing', `${letterSpacing}`);
+      textElement.setAttribute('y', `${updatedY}`);
       this.removeAllChildren(textElement);
       textElement.appendChild(cloneNode);
 
