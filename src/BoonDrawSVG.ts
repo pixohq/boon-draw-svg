@@ -17,7 +17,6 @@ import {
   getTextYPosition,
   loadTextToSvg
 } from './utils';
-import { BoonDrawSVGOptions } from './utils.types';
 
 export class BoonDrawSVG {
   private svgString: string;
@@ -25,20 +24,9 @@ export class BoonDrawSVG {
   private serializer: XMLSerializer = new XMLSerializer();
   private fontMap: Map<string, TextToSVG> = new Map();
 
-  constructor(svgString: string, options?: BoonDrawSVGOptions) {
+  constructor(svgString: string) {
     this.svgString = svgString;
     this.document = this.getNewDocument(svgString);
-
-    if (options?.fullWidth) {
-      this.setFullWidth();
-    }
-  }
-
-  private setFullWidth() {
-    const documentElement = this.document.documentElement;
-
-    documentElement.setAttribute('width', '100%');
-    documentElement.setAttribute('height', '100%');
   }
 
   private getNewDocument(svgString: string): Document {
@@ -303,6 +291,15 @@ export class BoonDrawSVG {
     return serializedSvg;
   }
 
+  setFullWidth() {
+    const documentElement = this.document.documentElement;
+
+    documentElement.setAttribute('width', '100%');
+    documentElement.setAttribute('height', '100%');
+
+    return this;
+  }
+
   setUniqueId() {
     // SVG 문자열 가져오기
     const svgString = this.svgString;
@@ -319,7 +316,7 @@ export class BoonDrawSVG {
 
     // 모든 요소를 가져와서 id를 가진 요소만 필터링
     const ids = Array.from(allElements).filter((element) => element.getAttribute('id')).map((element) => element.getAttribute('id')) as string[];
-    console.log(ids);
+
     // 아이디를 고유 키와 함께 변경하여 새로운 SVG 문자열 생성
     ids.forEach((id, index) => {
       newSvgString = newSvgString.replace(new RegExp(id, 'gi'), `${uniqueKey}-${index}`);

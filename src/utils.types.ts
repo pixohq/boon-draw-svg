@@ -1,6 +1,6 @@
-import TextToSVG, { Metrics } from "text-to-svg";
+import TextToSVG, { Metrics } from 'text-to-svg';
 
-import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from "./constants";
+import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from './constants';
 
 export interface CanvasSize {
   canvasWidth: number;
@@ -15,10 +15,6 @@ export interface Position {
 export type FONT_FACE_PROPERTIES =
   | typeof PROPERTY_FONT_FAMILY
   | typeof PROPERTY_FONT_SRC;
-
-export interface BoonDrawSVGOptions {
-  fullWidth?: boolean;
-}
 
 export interface FontInfo {
   property: string;
