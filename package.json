@@ -1,7 +1,7 @@
 {
   "name": "boon-draw-svg",
   "version": "0.0.8",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "repository": "https://github.com/pixohq/BoonDrawSVG.git",
   "author": "LeeSeongJin <leeseongjinca@pixo.co>",
   "license": "MIT",
@@ -41,6 +41,7 @@
     "eslint-plugin-unused-imports": "^3.1.0",
     "jest": "^29.7.0",
     "jest-transformer-svg": "^2.0.2",
-    "ts-jest": "^29.1.2"
+    "ts-jest": "^29.1.2",
+    "tsup": "^8.0.2"
   }
 }

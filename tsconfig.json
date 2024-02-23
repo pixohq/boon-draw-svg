@@ -9,5 +9,5 @@
     "strict": true
   },
   "include": ["src/**/*.ts", "src/__tests__/**/*.ts", "svg.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "examples/**/*.tsx"]
 }
