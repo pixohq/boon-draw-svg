@@ -6,7 +6,8 @@
   "author": "LeeSeongJin <leeseongjinca@pixo.co>",
   "license": "MIT",
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "build": "tsup src/index.ts --dts"
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
