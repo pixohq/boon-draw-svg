@@ -19,3 +19,5 @@ webpack.config.*
 
 svgTransformer.js
 fileTransformer.js
+
+/examples/*
