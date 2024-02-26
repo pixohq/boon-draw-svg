@@ -1,10 +1,8 @@
 import TextToSVG, { Metrics } from 'text-to-svg';
 
-import { PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC } from '../constants/constants';
-
 export type FONT_FACE_PROPERTIES =
-  | typeof PROPERTY_FONT_FAMILY
-  | typeof PROPERTY_FONT_SRC;
+  | 'font-family'
+  | 'src';
 
 export interface CanvasSize {
   canvasWidth: number;

@@ -2,10 +2,7 @@ import { Declaration, FontFace, Stylesheet } from 'css';
 import TextToSVG from 'text-to-svg';
 
 import {
-  DEFAULT_FONT_SIZE,
-  PROPERTY_FONT_FAMILY,
-  PROPERTY_FONT_SRC,
-  RULE_FONT_FACE
+  DEFAULT_FONT_SIZE
 } from '../constants/constants';
 import {
   CanvasSize,
@@ -26,7 +23,7 @@ const extractFontInfos = (fontFaceString: string) => {
   // CSS 파싱하여 @font-face 규칙 추출
   const result = cssParse(fontFaceString) as Stylesheet;
   const fontFaces = result.stylesheet?.rules.filter(
-    (rule) => rule.type === RULE_FONT_FACE && (rule as FontFace).declarations
+    (rule) => rule.type === 'font-face' && (rule as FontFace).declarations
   ) as FontFace[];
 
   if (!fontFaces) return null;
@@ -41,7 +38,7 @@ const extractFontInfos = (fontFaceString: string) => {
         if (
           property &&
           value &&
-          [PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC].includes(property)
+          ['font-family', 'src'].includes(property)
         ) {
           return { property, value };
         }
@@ -79,7 +76,7 @@ export const getFontInfoFromFontFace = (
 
   // 폰트 정보에서 src 속성 값만 추출하여 URL 배열 생성
   const fontInfo = fontInfos?.find((fontInfo) =>
-    fontInfo.find((font) => font.property === PROPERTY_FONT_FAMILY && font.value === fontFamily)
+    fontInfo.find((font) => font.property === 'font-family' && font.value === fontFamily)
   );
 
   if (!fontInfo) return;
