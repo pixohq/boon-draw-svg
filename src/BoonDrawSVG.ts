@@ -1,7 +1,4 @@
 import TextToSVG from 'text-to-svg';
-// (window as any)['process'] = {};
-// (window as any)['__dirname'] = '';
-// const TextToSVG = require('text-to-svg');
 import { v4 } from 'uuid';
 import { DOMParser, XMLSerializer } from 'xmldom';
 
