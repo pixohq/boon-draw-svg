@@ -1,0 +1,23 @@
+# package directories
+node_modules
+
+# Serverless directories
+.serverless*
+
+# Webpack
+.webpack
+webpack.config.*
+
+# Typescript definitions
+*.d.ts
+
+.next
+.idea
+.github
+
+*.config.*
+
+svgTransformer.js
+fileTransformer.js
+
+/examples/*
