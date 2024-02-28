@@ -62,6 +62,36 @@ app.get('/svg/:id', async (req, res) => {
   }
 });
 
+const svgPerPage = 20; // 한 페이지당 보여줄 SVG 파일 개수
+
+app.get('/svg-list', (req, res) => {
+  const page = parseInt(req.query.page) || 1; // 요청한 페이지 번호
+  const startIndex = (page - 1) * svgPerPage;
+  const endIndex = startIndex + svgPerPage;
+
+  // SVG 파일의 경로
+  const svgDirectory = path.join(__dirname, 'svgs'); // SVG 파일이 저장된 디렉토리 경로
+
+  fs.readdir(svgDirectory, (err, files) => {
+    if (err) {
+      console.error('Error reading SVG directory:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    const svgFiles = files.filter(file => path.extname(file) === '.svg'); // SVG 파일들만 필터링
+
+    // 요청한 페이지에 해당하는 SVG 파일들의 서브셋을 가져옴
+    const paginatedSvgFiles = svgFiles.slice(startIndex, endIndex);
+
+    // 전체 SVG 파일 개수와 현재 페이지의 SVG 파일들을 클라이언트에 응답
+    res.json({
+      totalSvgCount: svgFiles.length,
+      currentPage: page,
+      svgFiles: paginatedSvgFiles
+    });
+  });
+});
+
 // 에러 핸들러 설정
 app.use((err, req, res, next) => {
   // console.error(err.stack);
