@@ -11,7 +11,7 @@ exports.readSVGFile = (filePath) => {
       }
     });
   });
-}
+};
 
 exports.extractContentFromURL = (urlString) => {
   const urlRegex = /url\((['"])?(.*?)\1\)/;
