@@ -86,6 +86,9 @@ var getFontInfoFromFontFace = (document, fontFamily) => {
   }, {});
   return result;
 };
+var isHttpOrHttps = (url) => {
+  return url.startsWith("http://") || url.startsWith("https://");
+};
 var loadTextToSvg = (fontURL) => {
   return new Promise((resolve, reject) => {
     return import_text_to_svg.default.load(fontURL, (error, textToSvg) => {
@@ -93,7 +96,7 @@ var loadTextToSvg = (fontURL) => {
         return reject(error);
       }
       return resolve(textToSvg);
-    }, { isUrl: true });
+    }, { isUrl: isHttpOrHttps(fontURL) });
   });
 };
 var getFontScaleFromFontSize = (fontSize) => fontSize / DEFAULT_FONT_SIZE;
@@ -389,47 +392,43 @@ var BoonDrawSVG = class {
     targetId,
     brandName
   }) {
-    try {
-      const document = this.getDocument(key);
-      const textElement = this.getBrandNameTextElement(document, targetId);
-      const firstChild = textElement?.firstChild;
-      if (!textElement)
-        throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
-      if (!firstChild)
-        throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uC758 \uCCAB\uBC88\uC9F8 \uB178\uB4DC\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
-      const cloneNode = firstChild.cloneNode();
-      const adjustedFontStyles = await this.getAdjustedFontStyles({
-        key,
-        document,
-        targetId,
-        brandName
-      });
-      if (adjustedFontStyles === void 0)
-        return this;
-      const { fontSize, letterSpacing } = adjustedFontStyles;
-      const updatedY = await this.getUpdatedBrandNameY({
-        key,
-        document,
-        targetId,
-        brandName,
-        fontSize
-      });
-      const updatedDy = this.getUpdatedBrandNameDy({
-        key
-      });
-      if (updatedY === void 0 || updatedDy === void 0)
-        return this;
-      cloneNode.textContent = brandName;
-      cloneNode.setAttribute("dy", `${updatedDy}`);
-      cloneNode.setAttribute("font-size", `${fontSize}`);
-      cloneNode.setAttribute("letter-spacing", `${letterSpacing}`);
-      textElement.setAttribute("y", `${updatedY}`);
-      this.removeAllChildren(textElement);
-      textElement.appendChild(cloneNode);
+    const document = this.getDocument(key);
+    const textElement = this.getBrandNameTextElement(document, targetId);
+    const firstChild = textElement?.firstChild;
+    if (!textElement)
+      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+    if (!firstChild)
+      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uC758 \uCCAB\uBC88\uC9F8 \uB178\uB4DC\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+    const cloneNode = firstChild.cloneNode();
+    const adjustedFontStyles = await this.getAdjustedFontStyles({
+      key,
+      document,
+      targetId,
+      brandName
+    });
+    if (adjustedFontStyles === void 0)
       return this;
-    } catch {
+    const { fontSize, letterSpacing } = adjustedFontStyles;
+    const updatedY = await this.getUpdatedBrandNameY({
+      key,
+      document,
+      targetId,
+      brandName,
+      fontSize
+    });
+    const updatedDy = this.getUpdatedBrandNameDy({
+      key
+    });
+    if (updatedY === void 0 || updatedDy === void 0)
       return this;
-    }
+    cloneNode.textContent = brandName;
+    cloneNode.setAttribute("dy", `${updatedDy}`);
+    cloneNode.setAttribute("font-size", `${fontSize}`);
+    cloneNode.setAttribute("letter-spacing", `${letterSpacing}`);
+    textElement.setAttribute("y", `${updatedY}`);
+    this.removeAllChildren(textElement);
+    textElement.appendChild(cloneNode);
+    return this;
   }
   /**
    * getDocument 함수는 현재 객체(this)의 문서(document)를 반환합니다.
