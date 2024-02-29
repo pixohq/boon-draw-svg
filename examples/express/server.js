@@ -2,16 +2,22 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { promisify } = require('util');
 const cors = require('cors');
 const { DOMParser, XMLSerializer } = require('xmldom');
 const { BoonDrawSVG } = require('boon-draw-svg');
-const { readSVGFile } = require('./utils');
+const readFile = promisify(fs.readFile);
+
 
 // Express 앱을 생성합니다.
 const app = express();
 
 // BoonDrawSVG 인스턴스를 생성합니다.
 const boonDrawer = new BoonDrawSVG();
+
+// 고정 상수를 생성합니다.
+const ONE_HOUR = 60 * 60; // 1시간을 초 단위로 표현
+const svgDirectory = path.join(__dirname, 'svgs'); // SVG 파일이 저장된 디렉토리 경로
 
 // 미들웨어 설정
 app.use(express.json()); // JSON 파싱을 위한 미들웨어 설정
@@ -39,7 +45,7 @@ app.get('/svg/:id', async (req, res) => {
 
   try {
     // SVG 파일의 문자열을 읽어들임
-    let svgString = await readSVGFile(svgFilePath);
+    let svgString = await readFile(svgFilePath, 'utf8');
     const targetId = 'target-dataId';
 
     if (brandName) {
@@ -66,9 +72,6 @@ app.get('/svg/:id', async (req, res) => {
   }
 });
 
-const ONE_HOUR = 60 * 60; // 1시간을 초 단위로 표현
-const svgDirectory = path.join(__dirname, 'svgs'); // SVG 파일이 저장된 디렉토리 경로
-
 app.get('/svg-list', (req, res) => {
   const offset = parseInt(req.query.offset) || 0; // 요청한 페이지 번호
   const limit = parseInt(req.query.limit) || 12; // 요청한 페이지 번호
@@ -87,7 +90,7 @@ app.get('/svg-list', (req, res) => {
     const paginatedSvgFiles = await Promise.all(
       svgFiles.slice(startIndex, endIndex).map(async (svgFilePath) => {
         const id = svgFilePath.split('.')[0];
-        const templateSvg = await readSVGFile(`./svgs/${svgFilePath}`);
+        const templateSvg = await readFile(`./svgs/${svgFilePath}`, 'utf8');
 
         return {
           id,
@@ -134,7 +137,7 @@ app.patch('/svg', async (req, res) => {
   const svgFilePath = path.join(svgDirectory, `${templateId}.svg`);
 
   try {
-    const svgString = await readSVGFile(svgFilePath);
+    const svgString = await readFile(svgFilePath, 'utf8');
 
     try {
       // XML 파서를 사용하여 SVG 데이터 파싱
