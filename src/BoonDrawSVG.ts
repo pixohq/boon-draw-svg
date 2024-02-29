@@ -56,11 +56,11 @@ export class BoonDrawSVG {
    * 주어진 document에서 주어진 targetId와 일치하는 SVGTextElement를 반환합니다.
    *
    * @param document Document - 요소를 검색할 Document 객체
-   * @param targetId string - 검색할 요소의 data-id
-   * @returns SVGTextElement | null - 주어진 data-id와 일치하는 요소 또는 null (찾지 못한 경우)
+   * @param targetId string - 검색할 요소의 data-role
+   * @returns SVGTextElement | null - 주어진 data-role와 일치하는 요소 또는 null (찾지 못한 경우)
    */
   private getBrandNameTextElement(document: Document, targetId: string): SVGTextElement | null {
-    // 모든 요소를 가져온 다음 data-id가 targetId 인 요소를 직접 비교합니다.
+    // 모든 요소를 가져온 다음 data-role가 targetId 인 요소를 직접 비교합니다.
     const textElement = Array.from(document.getElementsByTagName('text')).find((element) => element.getAttribute('data-role') === targetId);
 
     return textElement ?? null;
@@ -282,7 +282,7 @@ export class BoonDrawSVG {
     const textElement = this.getBrandNameTextElement(document, targetId);
     const originalTextElementInfo = this.getOriginalTextElementInfo(key);
 
-    if (!textElement || !originalTextElementInfo) throw new Error(`data-id가 ${targetId}인 element를 찾을 수 없습니다.`);
+    if (!textElement || !originalTextElementInfo) throw new Error(`data-role가 ${targetId}인 element를 찾을 수 없습니다.`);
 
     const fontStyles = getFontStyles(textElement);
     const { fontFamily, fontSize, letterSpacing } = fontStyles;

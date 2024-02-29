@@ -28,8 +28,8 @@ declare class BoonDrawSVG {
      * 주어진 document에서 주어진 targetId와 일치하는 SVGTextElement를 반환합니다.
      *
      * @param document Document - 요소를 검색할 Document 객체
-     * @param targetId string - 검색할 요소의 data-id
-     * @returns SVGTextElement | null - 주어진 data-id와 일치하는 요소 또는 null (찾지 못한 경우)
+     * @param targetId string - 검색할 요소의 data-role
+     * @returns SVGTextElement | null - 주어진 data-role와 일치하는 요소 또는 null (찾지 못한 경우)
      */
     private getBrandNameTextElement;
     /**

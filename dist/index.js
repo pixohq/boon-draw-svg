@@ -42,9 +42,6 @@ var import_xmldom = require("xmldom");
 var import_text_to_svg = __toESM(require("text-to-svg"));
 
 // src/constants/constants.ts
-var RULE_FONT_FACE = "font-face";
-var PROPERTY_FONT_FAMILY = "font-family";
-var PROPERTY_FONT_SRC = "src";
 var DEFAULT_FONT_SIZE = 50;
 
 // src/utils/utils.ts
@@ -52,14 +49,14 @@ var cssParse = require("css/lib/parse");
 var extractFontInfos = (fontFaceString) => {
   const result = cssParse(fontFaceString);
   const fontFaces = result.stylesheet?.rules.filter(
-    (rule) => rule.type === RULE_FONT_FACE && rule.declarations
+    (rule) => rule.type === "font-face" && rule.declarations
   );
   if (!fontFaces)
     return null;
   const fontInfos = fontFaces.map((fontFace) => {
     return fontFace.declarations.map((declaration) => {
       const { property, value } = declaration;
-      if (property && value && [PROPERTY_FONT_FAMILY, PROPERTY_FONT_SRC].includes(property)) {
+      if (property && value && ["font-family", "src"].includes(property)) {
         return { property, value };
       }
     }).filter((v) => !!v);
@@ -79,7 +76,7 @@ var getFontInfoFromFontFace = (document, fontFamily) => {
     return;
   const fontInfos = extractFontInfos(fontFaceString);
   const fontInfo = fontInfos?.find(
-    (fontInfo2) => fontInfo2.find((font) => font.property === PROPERTY_FONT_FAMILY && font.value === fontFamily)
+    (fontInfo2) => fontInfo2.find((font) => font.property === "font-family" && font.value === fontFamily)
   );
   if (!fontInfo)
     return;
@@ -169,11 +166,11 @@ var BoonDrawSVG = class {
    * 주어진 document에서 주어진 targetId와 일치하는 SVGTextElement를 반환합니다.
    *
    * @param document Document - 요소를 검색할 Document 객체
-   * @param targetId string - 검색할 요소의 data-id
-   * @returns SVGTextElement | null - 주어진 data-id와 일치하는 요소 또는 null (찾지 못한 경우)
+   * @param targetId string - 검색할 요소의 data-role
+   * @returns SVGTextElement | null - 주어진 data-role와 일치하는 요소 또는 null (찾지 못한 경우)
    */
   getBrandNameTextElement(document, targetId) {
-    const textElement = Array.from(document.getElementsByTagName("text")).find((element) => element.getAttribute("data-id") === targetId);
+    const textElement = Array.from(document.getElementsByTagName("text")).find((element) => element.getAttribute("data-role") === targetId);
     return textElement ?? null;
   }
   /**
@@ -361,7 +358,7 @@ var BoonDrawSVG = class {
     const textElement = this.getBrandNameTextElement(document, targetId);
     const originalTextElementInfo = this.getOriginalTextElementInfo(key);
     if (!textElement || !originalTextElementInfo)
-      throw new Error(`data-id\uAC00 ${targetId}\uC778 element\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.`);
+      throw new Error(`data-role\uAC00 ${targetId}\uC778 element\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.`);
     const fontStyles = getFontStyles(textElement);
     const { fontFamily, fontSize, letterSpacing } = fontStyles;
     const scale = getFontScaleFromFontSize(fontSize);
