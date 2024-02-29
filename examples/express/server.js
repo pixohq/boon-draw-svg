@@ -8,7 +8,6 @@ const { DOMParser, XMLSerializer } = require('xmldom');
 const { BoonDrawSVG } = require('boon-draw-svg');
 const readFile = promisify(fs.readFile);
 
-
 // Express 앱을 생성합니다.
 const app = express();
 

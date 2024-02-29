@@ -1766,7 +1766,7 @@ balanced-match@^1.0.0:
 
 "boon-draw-svg@https://github.com/pixohq/boon-draw-svg":
   version "1.0.0"
-  resolved "https://github.com/pixohq/boon-draw-svg#9f7dc014ed6dcf5afc25721fa19a423ead1dddb8"
+  resolved "https://github.com/pixohq/boon-draw-svg#76991cb6a8e9f24ad9ddae1ee389bee6e188731f"
   dependencies:
     "@babel/core" "^7.23.9"
     "@babel/preset-env" "^7.23.9"
