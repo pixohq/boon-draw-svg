@@ -7,7 +7,9 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --watch",
-    "build": "tsup src/index.ts --dts"
+    "build": "tsup src/index.ts --dts",
+    "server": "yarn --cwd ./examples/express dev",
+    "client": "yarn --cwd ./examples/react-vite dev"
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
