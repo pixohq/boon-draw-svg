@@ -1573,9 +1573,9 @@ body-parser@1.20.1:
     type-is "~1.6.18"
     unpipe "1.0.0"
 
-"boon-draw-svg@https://github.com/pixohq/BoonDrawSVG#v0.0.13":
-  version "0.0.13"
-  resolved "https://github.com/pixohq/BoonDrawSVG#e846111b03084179b327df5fdc4541882613d7f7"
+"boon-draw-svg@https://github.com/pixohq/boon-draw-svg":
+  version "1.0.0"
+  resolved "https://github.com/pixohq/boon-draw-svg#9f7dc014ed6dcf5afc25721fa19a423ead1dddb8"
   dependencies:
     "@babel/core" "^7.23.9"
     "@babel/preset-env" "^7.23.9"

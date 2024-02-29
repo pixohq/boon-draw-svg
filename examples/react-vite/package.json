@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "boon-draw-svg": "https://github.com/pixohq/BoonDrawSVG#v0.0.13",
+    "boon-draw-svg": "https://github.com/pixohq/boon-draw-svg",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
