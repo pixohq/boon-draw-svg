@@ -1,7 +1,4 @@
 import TextToSVG from 'text-to-svg';
-// (window as any)['process'] = {};
-// (window as any)['__dirname'] = '';
-// const TextToSVG = require('text-to-svg');
 import { v4 } from 'uuid';
 import { DOMParser, XMLSerializer } from 'xmldom';
 
@@ -64,7 +61,7 @@ export class BoonDrawSVG {
    */
   private getBrandNameTextElement(document: Document, targetId: string): SVGTextElement | null {
     // 모든 요소를 가져온 다음 data-id가 targetId 인 요소를 직접 비교합니다.
-    const textElement = Array.from(document.getElementsByTagName('text')).find((element) => element.getAttribute('data-id') === targetId);
+    const textElement = Array.from(document.getElementsByTagName('text')).find((element) => element.getAttribute('data-role') === targetId);
 
     return textElement ?? null;
   }

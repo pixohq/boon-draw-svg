@@ -1,12 +1,12 @@
 import '../__mocks__/text-to-svg';
 
 import { BoonDrawSVG } from '../BoonDrawSVG';
-import SVG from './assets/6DecQXLpmG9WZJm9f3rVjg.svg';
-import SVG_BRAND_NAME from './assets/6DecQXLpmG9WZJm9f3rVjg-brandName.svg';
+import SVG from './assets/1NeyQSMrs46yKycB50n18N.svg';
+import SVG_BRAND_NAME from './assets/1nhXKPq4nbiM4LGlrK3opG.svg';
 import { SVG_STRING } from './constants';
 
 const TEST_KEY = 'template-key';
-const TEST_TARGET_ID = 'target-dataId';
+const TEST_TARGET_ID = 'brand-name';
 
 describe('BoonDrawSVG 모듈', () => {
   test('생성자 테스트', () => {
