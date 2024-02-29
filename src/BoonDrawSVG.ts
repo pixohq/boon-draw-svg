@@ -320,50 +320,46 @@ export class BoonDrawSVG {
     targetId,
     brandName,
   }: UpdateBrandNameProps): Promise<BoonDrawSVG> {
-    try {
-      const document = this.getDocument(key);
-      const textElement = this.getBrandNameTextElement(document, targetId);
-      const firstChild = textElement?.firstChild as SVGTSpanElement | null;
+    const document = this.getDocument(key);
+    const textElement = this.getBrandNameTextElement(document, targetId);
+    const firstChild = textElement?.firstChild as SVGTSpanElement | null;
 
-      if (!textElement) throw new Error('텍스트 엘리먼트를 찾을 수 없습니다.');
-      if (!firstChild) throw new Error('텍스트 엘리먼트의 첫번째 노드를 찾을 수 없습니다.');
+    if (!textElement) throw new Error('텍스트 엘리먼트를 찾을 수 없습니다.');
+    if (!firstChild) throw new Error('텍스트 엘리먼트의 첫번째 노드를 찾을 수 없습니다.');
 
-      const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
-      const adjustedFontStyles = await this.getAdjustedFontStyles({
-        key,
-        document,
-        targetId,
-        brandName,
-      });
+    const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
+    const adjustedFontStyles = await this.getAdjustedFontStyles({
+      key,
+      document,
+      targetId,
+      brandName,
+    });
 
-      if (adjustedFontStyles === undefined) return this;
+    if (adjustedFontStyles === undefined) return this;
 
-      const { fontSize, letterSpacing } = adjustedFontStyles;
-      const updatedY = await this.getUpdatedBrandNameY({
-        key,
-        document,
-        targetId,
-        brandName,
-        fontSize,
-      });
-      const updatedDy = this.getUpdatedBrandNameDy({
-        key,
-      });
+    const { fontSize, letterSpacing } = adjustedFontStyles;
+    const updatedY = await this.getUpdatedBrandNameY({
+      key,
+      document,
+      targetId,
+      brandName,
+      fontSize,
+    });
+    const updatedDy = this.getUpdatedBrandNameDy({
+      key,
+    });
 
-      if (updatedY === undefined || updatedDy === undefined) return this;
+    if (updatedY === undefined || updatedDy === undefined) return this;
 
-      cloneNode.textContent = brandName;
-      cloneNode.setAttribute('dy', `${updatedDy}`);
-      cloneNode.setAttribute('font-size', `${fontSize}`);
-      cloneNode.setAttribute('letter-spacing', `${letterSpacing}`);
-      textElement.setAttribute('y', `${updatedY}`);
-      this.removeAllChildren(textElement);
-      textElement.appendChild(cloneNode);
+    cloneNode.textContent = brandName;
+    cloneNode.setAttribute('dy', `${updatedDy}`);
+    cloneNode.setAttribute('font-size', `${fontSize}`);
+    cloneNode.setAttribute('letter-spacing', `${letterSpacing}`);
+    textElement.setAttribute('y', `${updatedY}`);
+    this.removeAllChildren(textElement);
+    textElement.appendChild(cloneNode);
 
-      return this;
-    } catch {
-      return this;
-    }
+    return this;
   }
 
   /**

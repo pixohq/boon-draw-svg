@@ -89,6 +89,10 @@ export const getFontInfoFromFontFace = (
   return result;
 };
 
+const isHttpOrHttps = (url: string) => {
+  return url.startsWith('http://') || url.startsWith('https://');
+};
+
 export const loadTextToSvg = (fontURL: string): Promise<TextToSVG> => {
   return new Promise<TextToSVG>((resolve, reject) => {
     return TextToSVG.load(fontURL, (error, textToSvg) => {
@@ -97,7 +101,7 @@ export const loadTextToSvg = (fontURL: string): Promise<TextToSVG> => {
       }
 
       return resolve(textToSvg);
-    }, { isUrl: true });
+    }, { isUrl: isHttpOrHttps(fontURL) });
   });
 };
 
