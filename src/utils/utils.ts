@@ -97,7 +97,7 @@ export const loadTextToSvg = (fontURL: string): Promise<TextToSVG> => {
       }
 
       return resolve(textToSvg);
-    });
+    }, { isUrl: true });
   });
 };
 
