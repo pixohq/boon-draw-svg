@@ -1764,9 +1764,9 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
-"boon-draw-svg@https://github.com/pixohq/boon-draw-svg":
-  version "1.0.0"
-  resolved "https://github.com/pixohq/boon-draw-svg#76991cb6a8e9f24ad9ddae1ee389bee6e188731f"
+"boon-draw-svg@https://github.com/pixohq/boon-draw-svg#v1.0.1":
+  version "1.0.1"
+  resolved "https://github.com/pixohq/boon-draw-svg#bf7979ee609aa3b7939c8d36a6e219e9953fa241"
   dependencies:
     "@babel/core" "^7.23.9"
     "@babel/preset-env" "^7.23.9"

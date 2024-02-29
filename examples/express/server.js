@@ -40,7 +40,7 @@ app.get('/svg/:id', async (req, res) => {
   const brandName = req.query.brandName;
 
   // SVG 파일의 경로
-  const svgFilePath = path.join(__dirname, 'public', `${key}.svg`);
+  const svgFilePath = path.join(svgDirectory, `${key}.svg`);
 
   try {
     // SVG 파일의 문자열을 읽어들임
