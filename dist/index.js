@@ -93,7 +93,7 @@ var loadTextToSvg = (fontURL) => {
         return reject(error);
       }
       return resolve(textToSvg);
-    });
+    }, { isUrl: true });
   });
 };
 var getFontScaleFromFontSize = (fontSize) => fontSize / DEFAULT_FONT_SIZE;
