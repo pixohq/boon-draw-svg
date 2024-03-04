@@ -45,22 +45,23 @@ app.get('/svg/:id', async (req, res) => {
   try {
     // SVG 파일의 문자열을 읽어들임
     let svgString = await readFile(svgFilePath, 'utf8');
-    const targetId = 'target-dataId';
+    const targetId = 'brand-name';
 
     if (brandName) {
       svgString = (await boonDrawer
-        .initUniqueId(key, svgString, targetId)
-        // TODO: font url()이 너무 길어서 파일 시스템에서 에러가 발생하고 있음
-        .updateBrandName({ key, brandName, targetId }))
+          .init(key, svgString, targetId)
+          // TODO: font url()이 너무 길어서 파일 시스템에서 에러가 발생하고 있음
+          .updateBrandName({ key, brandName, targetId })
+        )
         .setFullWidth(key)
         .getSvgString(key);
     } else {
       svgString = boonDrawer
-        .initUniqueId(key, svgString, targetId)
-        .setFullWidth(key)
-        .getSvgString(key);
+      .initUniqueId(key, svgString, targetId)
+      .setFullWidth(key)
+      .getSvgString(key);
     }
-
+    
     // 클라이언트에게 SVG 파일의 문자열을 응답
     res.send(svgString);
   } catch (error) {
@@ -172,7 +173,6 @@ app.patch('/svg', async (req, res) => {
 
 // 에러 핸들러 설정
 app.use((err, req, res, next) => {
-  // console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
