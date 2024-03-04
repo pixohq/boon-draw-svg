@@ -11,6 +11,9 @@
     "server": "yarn --cwd ./examples/express dev",
     "client": "yarn --cwd ./examples/react-vite dev"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
