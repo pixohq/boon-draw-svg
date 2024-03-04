@@ -32,12 +32,12 @@ const getQueryString = (key: string) => {
 
 const svgs: { key: string; targetId: string; templateSvg: string; }[] = [
   // 로컬 파일 테스트
-  { key: 'svg1', targetId: '', templateSvg: SVG1 },
-  { key: 'svg2', targetId: 'target-dataId', templateSvg: SVG2 },
+  // { key: 'svg1', targetId: '', templateSvg: SVG1 },
+  { key: 'svg2', targetId: 'brand-name', templateSvg: SVG2 },
 
   // 서버 연동 테스트
   // { key: 'svg3', targetId: '', templateSvg: 'http://localhost:3000/svg/6DecQXLpmG9WZJm9f3rVjg' },
-  // { key: 'svg4', targetId: 'target-dataId', templateSvg: 'http://localhost:3000/svg/6DecQXLpmG9WZJm9f3rVjg-brandName' },
+  // { key: 'svg4', targetId: 'brand-name', templateSvg: 'http://localhost:3000/svg/6DecQXLpmG9WZJm9f3rVjg-brandName' },
 ];
 
 function App() {
