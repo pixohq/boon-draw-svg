@@ -86,9 +86,6 @@ var getFontInfoFromFontFace = (document, fontFamily) => {
   }, {});
   return result;
 };
-var isHttpOrHttps = (url) => {
-  return url.startsWith("http://") || url.startsWith("https://");
-};
 var loadTextToSvg = (fontURL) => {
   return new Promise((resolve, reject) => {
     return import_text_to_svg.default.load(fontURL, (error, textToSvg) => {
@@ -96,7 +93,7 @@ var loadTextToSvg = (fontURL) => {
         return reject(error);
       }
       return resolve(textToSvg);
-    }, { isUrl: isHttpOrHttps(fontURL) });
+    });
   });
 };
 var getFontScaleFromFontSize = (fontSize) => fontSize / DEFAULT_FONT_SIZE;
@@ -396,9 +393,9 @@ var BoonDrawSVG = class {
     const textElement = this.getBrandNameTextElement(document, targetId);
     const firstChild = textElement?.firstChild;
     if (!textElement)
-      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4: " + key);
     if (!firstChild)
-      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uC758 \uCCAB\uBC88\uC9F8 \uB178\uB4DC\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+      throw new Error("\uD14D\uC2A4\uD2B8 \uC5D8\uB9AC\uBA3C\uD2B8\uC758 \uCCAB\uBC88\uC9F8 \uB178\uB4DC\uB97C \uCC3E\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4: " + key);
     const cloneNode = firstChild.cloneNode();
     const adjustedFontStyles = await this.getAdjustedFontStyles({
       key,
