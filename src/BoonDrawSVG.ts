@@ -324,8 +324,8 @@ export class BoonDrawSVG {
     const textElement = this.getBrandNameTextElement(document, targetId);
     const firstChild = textElement?.firstChild as SVGTSpanElement | null;
 
-    if (!textElement) throw new Error('텍스트 엘리먼트를 찾을 수 없습니다.');
-    if (!firstChild) throw new Error('텍스트 엘리먼트의 첫번째 노드를 찾을 수 없습니다.');
+    if (!textElement) throw new Error('텍스트 엘리먼트를 찾을 수 없습니다: ' + key);
+    if (!firstChild) throw new Error('텍스트 엘리먼트의 첫번째 노드를 찾을 수 없습니다: ' + key);
 
     const cloneNode = firstChild.cloneNode() as SVGTSpanElement;
     const adjustedFontStyles = await this.getAdjustedFontStyles({
