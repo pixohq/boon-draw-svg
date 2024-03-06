@@ -5,7 +5,6 @@ import { DOMParser, XMLSerializer } from 'xmldom';
 import {
   GetAdjustedFontSizeProps,
   GetAdjustedFontSizeResult,
-  GetElementByIdOptions,
   GetUpdatedBrandNameDyProps,
   GetUpdatedBrandNameYProps,
   UpdateBrandNameProps
@@ -32,25 +31,6 @@ export class BoonDrawSVG {
   private originalTextElementMap: Map<string, SVGTextElement | null> = new Map();
   private documentMap: Map<string, Document> = new Map();
   private textToSvgMap: Map<string, TextToSVG> = new Map();
-
-  /**
-   * 주어진 document에서 주어진 targetId와 일치하는 요소를 반환합니다.
-   *
-   * @param document Document - 요소를 검색할 Document 객체
-   * @param targetId string - 검색할 요소의 ID
-   * @param options GetElementByIdOptions - getElementByIdOptions에 대한 선택적 옵션
-   * @returns Element | null - 주어진 ID와 일치하는 요소 또는 null (찾지 못한 경우)
-   */
-  private getElementById(document: Document, targetId: string, options: GetElementByIdOptions) {
-    // 모든 요소를 가져온 다음 id가 targetId 인 요소를 직접 비교합니다.
-    const element = Array.from(document.getElementsByTagName(options.qualifiedName ?? '*')).find((element) => element.getAttribute('id') === targetId);
-
-    if (element) {
-      return element;
-    }
-
-    return null;
-  }
 
   /**
    * 주어진 document에서 주어진 targetId와 일치하는 SVGTextElement를 반환합니다.

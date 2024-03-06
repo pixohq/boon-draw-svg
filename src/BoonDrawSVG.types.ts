@@ -1,7 +1,3 @@
-export interface GetElementByIdOptions {
-  qualifiedName?: string;
-}
-
 export interface GetAdjustedFontSizeProps {
   key: string;
   document: Document;
