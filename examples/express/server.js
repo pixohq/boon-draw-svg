@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const cors = require('cors');
-const { DOMParser, XMLSerializer } = require('xmldom');
 const { BoonDrawSVG } = require('boon-draw-svg');
 const { getPaginationSvgFiles } = require('./getPaginationSvgFiles');
 const { updateDataset } = require('./updateDataset');
@@ -17,9 +16,7 @@ const app = express();
 const boonDrawer = new BoonDrawSVG();
 
 // 고정 상수를 생성합니다.
-const ONE_HOUR = 60 * 60; // 1시간을 초 단위로 표현
 const svgDirectory = path.join(__dirname, 'svgs'); // SVG 파일이 저장된 디렉토리 경로
-const svgDirectory2 = path.join(__dirname, 'svgs2'); // SVG 파일이 저장된 디렉토리 경로
 
 // 미들웨어 설정
 app.use(express.json()); // JSON 파싱을 위한 미들웨어 설정
