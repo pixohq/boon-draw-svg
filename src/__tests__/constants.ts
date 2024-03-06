@@ -33,7 +33,7 @@ export const SVG_STRING2 = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink=
   </text>
   <g style="opacity: 1; transform: rotateZ(0rad) rotateY(0deg); transform-box: fill-box; transform-origin: center center;">
     <svg width="169.56285044617684" height="188.522409673281" viewBox="0 0 948 1054" fill="none" xmlns="http://www.w3.org/2000/svg" class="SVGRenderer" x="320.2185747769117" y="251.43989063745732" style="display: block; width: 100%; height: 100%;">
-      <path d="M0.09375 473.905C0.09375 212.175 212.268 0 473.999 0V0C735.729 0 947.904 212.175 947.904 473.905V1054H0.09375V473.905Z" fill="#343436"></path>
+      <path d="M0.09375 473.905C0.09375 212.175 212.268 0 473.999 0V0C735.729 0 947.904 212.175 947.904 473.905V1054H0.09375V473.905Z" fill="#343435"></path>
     </svg>
   </g>
 </svg>`;
